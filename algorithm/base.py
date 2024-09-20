@@ -15,7 +15,7 @@ class History_Buffer:
     def __init__(self):
         self.prompts = []
         self.generations = []
-        self.responses = []
+        self.responses = [] # <mol> </mol>
         self.save_path = 'checkpoint/'
 
     def save_to_pkl(self, filename):

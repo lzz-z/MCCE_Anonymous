@@ -251,12 +251,11 @@ class MOO:
         #offspring_times = self.config.get('optimization.eval_budge') // ngen //2
         offspring_times = self.pop_size //2
         for gen in tqdm(range(ngen)):
-            offspring = self.generate_offspring(population, prompt, offspring_times)
+            offspring = self.generate_offspring(population, offspring_times)
             population = self.select_next_population(population, offspring, self.pop_size)
         return init_pops,population
 
-    def generate_offspring(self, population, prompt, offspring_times):
-        offspring = []
+    def generate_offspring(self, population, offspring_times):
         #for _ in range(offspring_times): # 20 10 crossver+mutation 20 
         parents = [random.sample(population, 2) for i in range(offspring_times)]
         while True:
@@ -269,13 +268,30 @@ class MOO:
             except Exception as e:
                 print('retry in 60s, exception ',e)
                 time.sleep(90)
-        #parents = random.sample(population, 2)
-        #children,prompt,response = self.crossover(prompt, parents) 
         for child_pair in children:
             self.evaluate_all(child_pair)
-            offspring.extend(child_pair)
+        # check if the child is valid
+        offspring = self.check_valid(children)
         self.history.push(prompts,children,responses) 
         return offspring
+
+    def check_valid(self,children):
+        tmp_offspring = []
+        offspring = []
+        for child_pair in children:
+            tmp_offspring.extend(child_pair)
+        for child in tmp_offspring:
+            if self.is_valid(child):
+                offspring.append(child)
+        return offspring
+    
+    def is_valid(self,child):
+        for idx, op in enumerate(child.property_list):
+            if op == 'qed' and child.raw_scores[idx]==0:
+                return False
+            if op == 'logp' and child.raw_scores[idx]==-100:
+                return False
+        return True
 
     def select_next_population(self, population, offspring, pop_size):
         combined_population = population + offspring

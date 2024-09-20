@@ -37,14 +37,14 @@ def judge_logp(  requirement, simi_requirement, similarity, logp_input_mol, logp
         return (a<=logp_response_mol<=b and similarity>simi_requirement)
     raise ValueError(f'Invalid requirement: {requirement}')
 
-import numpy as np
+
+import re
 from tqdm import tqdm
 import requests
 import json
-
-# 定义 API 端点 URL
+import numpy as np
 url = 'http://cpu1.ms.wyue.site:8000/process'
-
+import time
 
 def get_evaluation(evaluate_metric, smiles):
     data = {
@@ -55,37 +55,46 @@ def get_evaluation(evaluate_metric, smiles):
     result = response.json()['results']
     return result
 
+def extract_smiles_from_string(text):
+    pattern = r"<mol>(.*?)</mol>"
+    smiles_list = re.findall(pattern, text)
+    return smiles_list
+
 def mean_sr(r):
     return r.mean(), (r>0).sum()/len(r)
-def eval_mo_results(df,similarity_requ=0.4,length=99999,ops=['qed','logp','donor'],qed_meta=None,logp_meta=None,donor_meta=None,candidate_num=20):
-    #key = 'mo_gpt4_direct_wo_history'
-    #similarity_requ = 0.4
+
+def eval_mo_results(dataset,obj,similarity_requ=0.4,ops=['qed','logp','donor'],candidate_num=20):
     hist_success_times = []
-    for index,row in tqdm(df[:length].iterrows()):
-        mol = row['input_mol']
+    prompts = dataset['prompts']
+    requs = dataset['requirements']
+    for index in tqdm(range(len(obj['final_pops']))):
+        prompt = prompts[index]
+        mol = extract_smiles_from_string(prompt)[0]
         #print(mol)
-        combine_mols = [[mol,row[f'response{i+1}']] for i in range(candidate_num)]
+        final_pops = obj['final_pops'][index]
+        combine_mols = [[mol, i.value] for i in final_pops]
         eval_res = get_evaluation(['similarity']+ops,combine_mols)
-        #print(eval_res)
-        if 'donor' in ops:
-            input_mol_donor = eval_res['donor'][0][0]
-        if 'qed' in ops:
-            input_mol_qed = eval_res['qed'][0][0]
-        if 'logp' in ops:
-            input_mol_logp = eval_res['logp'][0][0]
         success_times = 0
         for i in range(candidate_num):
-            if len(ops) == 3:
-                if judge_donor(donor_meta[index]['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_donor,eval_res['donor'][i][1]) and \
-                    judge_logp(logp_meta[index]['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_logp,eval_res['logp'][i][1]) and \
-                    judge_qed(qed_meta[index]['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_qed,eval_res['qed'][i][1]):
-                    success_times += 1
-            elif len(ops)==1 and ops[0]=='qed' and judge_qed(qed_meta[index]['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_qed,eval_res['qed'][i][1]):
-                success_times+=1
-            elif len(ops)==1 and ops[0]=='logp' and judge_logp(logp_meta[index]['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_logp,eval_res['logp'][i][1]):
-                success_times+=1
-            elif len(ops)==1 and ops[0]=='donor' and judge_donor(donor_meta[index]['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_donor,eval_res['donor'][i][1]):
+            if eval_one(ops,requs,index,similarity_requ,eval_res,i):
                 success_times+=1
         #print('success times:',success_times)
         hist_success_times.append(success_times)
+        
     return np.array(hist_success_times)
+
+def eval_one(ops,requs,index,similarity_requ,eval_res,i):
+    if 'donor' in ops:
+        input_mol_donor = eval_res['donor'][0][0]
+    if 'qed' in ops:
+        input_mol_qed = eval_res['qed'][0][0]
+    if 'logp' in ops:
+        input_mol_logp = eval_res['logp'][0][0]
+    for op in ops:
+        if op == 'qed' and not judge_qed(requs[index]['qed_requ']['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_qed,eval_res['qed'][i][1]):
+            return False
+        if op=='logp' and not judge_logp(requs[index]['logp_requ']['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_logp,eval_res['logp'][i][1]):
+            return False
+        if op=='donor' and not judge_donor(requs[index]['donor_requ']['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_donor,eval_res['donor'][i][1]):
+            return False
+    return True

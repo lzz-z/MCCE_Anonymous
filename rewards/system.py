@@ -12,9 +12,23 @@ def get_evaluation(evaluate_metric, smiles):
     result = response.json()['results']
     return result
 
+from tdc import Oracle
 class Rewarding_system:
     def __init__(self):
+        tdc_func = ['GSK3B','JNK3','DRD2','SA',
+                    'QED','LogP','Rediscovery','Celecoxib_Rediscovery',
+                    'Aripiprazole_Similarity','Median 1','Median 2',
+                    'Isomers_C7H8N2O2','Isomers_C9H10N2O2PF2CL',
+                    'Osimertinib_MPO','Fexofenadine_MPO','Ranolazine_MPO',
+                    'Perindopril_MPO','Amlodipine_MPO','Sitagliptin_MPO',
+                    'Zaleplon_MPO','Valsartan_SMARTS','Scaffold Hop',]
+        '''self.all_rewards = {
+            name:Oracle(name=name) for name in tdc_func
+        }'''
         self.all_rewards = {}
+        
+        #self.all_rewards = {}
+    
 
     def register_reward(self, reward_name, reward_function):
         self.all_rewards[reward_name] = reward_function

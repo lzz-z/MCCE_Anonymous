@@ -5,6 +5,7 @@ from model.LLM import LLM
 import os
 import pickle
 from algorithm.MOO import MOO
+from eval import eval_mo_results,mean_sr
 class ConfigLoader:
     def __init__(self, config_path="config.yaml"):
         self.config = self._load_config(config_path)
@@ -37,7 +38,12 @@ class MOLLM:
         self.save_dir = self.config.get('save_dir')
         self.save_suffix = self.config.get('save_suffix')
         self.resume = resume
-        self.save_path = os.path.join(self.save_dir,'_'.join(self.property_list) + self.save_suffix +'.pkl')
+        self.save_path = os.path.join(self.save_dir,'_'.join(self.property_list) + '_' + self.save_suffix +'.pkl')
+        self.results = {
+            'mean success num': 0,
+            'mean success rate': 0,
+            'success num each problem': []
+        }
     
     def load_dataset(self):
         with open(self.config.get('dataset.path'), 'r') as json_file:
@@ -53,13 +59,30 @@ class MOLLM:
             self.history.append(moo.history)
             self.final_pops.append(final_pops)
             self.init_pops.append(init_pops)
+            self.evaluate() # evaluate self.final_pops and self.init_pops
             self.save_to_pkl(self.save_path)
+            
+    
+    def evaluate(self):
+        obj = {
+            'init_pops':self.init_pops,
+            'final_pops':self.final_pops,
+        }
+        r  = eval_mo_results(self.dataset,obj,similarity_requ=0.4,ops=self.property_list,candidate_num=20)
+        mean_success_num,mean_success_rate = mean_sr(r)
+        print(f'mean success number: {mean_success_num:.4f}, mean success rate: {mean_success_rate:.4f}')
+        self.results = {
+            'mean success num': mean_success_num,
+            'mean success rate': mean_success_rate,
+            'success num each problem': r
+        }
 
     def save_to_pkl(self, filepath):
         data = {
             'history':self.history,
             'init_pops':self.init_pops,
-            'final_pops':self.final_pops
+            'final_pops':self.final_pops,
+            'evaluation':self.results
         }
         with open(filepath, 'wb') as f:
             pickle.dump(data, f)
