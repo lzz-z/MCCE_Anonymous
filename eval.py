@@ -65,7 +65,7 @@ def mean_sr(r,num_candiate=5):
     new_sr = k.sum()/ (len(k)*num_candiate)
     return r.mean(), (r>0).sum()/len(r),new_sr
 
-def eval_mo_results(dataset,obj,similarity_requ=0.4,ops=['qed','logp','donor'],candidate_num=20):
+def eval_mo_results(dataset,obj,similarity_requ=0.4,ops=['qed','logp','donor']):
     hist_success_times = []
     prompts = dataset['prompts']
     requs = dataset['requirements']
@@ -77,7 +77,7 @@ def eval_mo_results(dataset,obj,similarity_requ=0.4,ops=['qed','logp','donor'],c
         combine_mols = [[mol, i.value] for i in final_pops]
         eval_res = get_evaluation(['similarity']+ops,combine_mols)
         success_times = 0
-        for i in range(candidate_num):
+        for i in range(len(final_pops)):
             if eval_one(ops,requs,index,similarity_requ,eval_res,i):
                 success_times+=1
         #print('success times:',success_times)

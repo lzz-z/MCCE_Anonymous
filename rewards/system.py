@@ -16,7 +16,8 @@ from tdc import Oracle
 class Rewarding_system:
     def __init__(self):
         tdc_func = ['GSK3B','JNK3','DRD2','SA',
-                    'QED','LogP','Rediscovery','Celecoxib_Rediscovery',
+                    'QED','LogP','Celecoxib_Rediscovery','Troglitazone_Rediscovery',
+                    'Thiothixene_Rediscovery',
                     'Aripiprazole_Similarity','Median 1','Median 2',
                     'Isomers_C7H8N2O2','Isomers_C9H10N2O2PF2CL',
                     'Osimertinib_MPO','Fexofenadine_MPO','Ranolazine_MPO',
@@ -33,7 +34,12 @@ class Rewarding_system:
     def register_reward(self, reward_name, reward_function):
         self.all_rewards[reward_name] = reward_function
 
-    def get_reward(self, reward_name, items):
+    def get_reward(self, reward_names, items):
+        for reward_name in reward_names:
+            if reward_name in []:
+                pass
+
+
         return self.all_rewards[reward_name](*items)
 
     def evaluate(self,ops,smiles_list):

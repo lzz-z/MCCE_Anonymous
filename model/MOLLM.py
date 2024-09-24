@@ -59,7 +59,8 @@ class MOLLM:
             self.history.append(moo.history)
             self.final_pops.append(final_pops)
             self.init_pops.append(init_pops)
-            self.evaluate() # evaluate self.final_pops and self.init_pops
+            if (i+1)%10 ==0:
+                self.evaluate() # evaluate self.final_pops and self.init_pops
             self.save_to_pkl(self.save_path)
             
     
@@ -68,7 +69,7 @@ class MOLLM:
             'init_pops':self.init_pops,
             'final_pops':self.final_pops,
         }
-        r  = eval_mo_results(self.dataset,obj,similarity_requ=0.4,ops=self.property_list,candidate_num=20)
+        r  = eval_mo_results(self.dataset,obj,similarity_requ=0.4,ops=self.property_list)
         mean_success_num,mean_success_rate,new_sr = mean_sr(r)
         print(f'mean success number: {mean_success_num:.4f}, new mean success rate {new_sr:.4f}, mean success rate: {mean_success_rate:.4f}')
         self.results = {

@@ -17,4 +17,4 @@ dataset:
 init_datset: ZINC
 
 save_dir: "/home/v-nianran/src/results"
-save_suffix: "uniform150"
+save_suffix: "wo_reward"

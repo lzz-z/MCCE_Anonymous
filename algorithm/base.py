@@ -5,9 +5,13 @@ class Item:
         self.value = value
         self.property_list = property_list if property_list is not None else self.property_list
         # raw scores are the original objective values
-        self.raw_scores = [ 0 for prop in self.property_list]
+        self.assign_raw_scores([ 0 for prop in self.property_list])
         # scores are the objective values (after judgement) for MOO
         self.scores = [ 0 for prop in self.property_list]
+    
+    def assign_raw_scores(self,scores):
+        self.raw_scores = scores
+        self.property = {self.property_list[i]:scores[i] for i in range(len(self.property_list))}
 
 import pickle
 import os
