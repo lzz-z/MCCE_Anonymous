@@ -1,6 +1,6 @@
 import yaml
 import json
-from rewards.system import Rewarding_system
+from rewards.system import RewardingSystem
 from model.LLM import LLM
 import os
 import pickle
@@ -8,6 +8,7 @@ from algorithm.MOO import MOO
 from eval import eval_mo_results,mean_sr
 class ConfigLoader:
     def __init__(self, config_path="config.yaml"):
+        config_path = os.path.join('config',config_path)
         self.config = self._load_config(config_path)
 
     def _load_config(self, config_path):
@@ -25,10 +26,10 @@ class ConfigLoader:
         return value
 
 class MOLLM:
-    def __init__(self, config='config/base.yaml',resume=False):
+    def __init__(self, config='base.yaml',resume=False):
         self.config = ConfigLoader(config)
         self.property_list = self.config.get('goals')
-        self.reward_system = Rewarding_system()
+        self.reward_system = RewardingSystem()
         self.llm = LLM()
         self.history = []
         self.load_dataset()
@@ -59,17 +60,21 @@ class MOLLM:
             self.history.append(moo.history)
             self.final_pops.append(final_pops)
             self.init_pops.append(init_pops)
-            if (i+1)%10 ==0:
+            if (i)%1 ==0:
                 self.evaluate() # evaluate self.final_pops and self.init_pops
             self.save_to_pkl(self.save_path)
             
-    
+    def load_evaluate(self):
+        self.load_from_pkl(self.save_path)
+        r = self.evaluate()
+        print(r)
+
     def evaluate(self):
         obj = {
             'init_pops':self.init_pops,
             'final_pops':self.final_pops,
         }
-        r  = eval_mo_results(self.dataset,obj,similarity_requ=0.4,ops=self.property_list)
+        r  = eval_mo_results(self.dataset,obj,ops=self.property_list)
         mean_success_num,mean_success_rate,new_sr = mean_sr(r)
         print(f'mean success number: {mean_success_num:.4f}, new mean success rate {new_sr:.4f}, mean success rate: {mean_success_rate:.4f}')
         self.results = {
@@ -78,6 +83,7 @@ class MOLLM:
             'mean success rate': mean_success_rate,
             'success num each problem': r
         }
+        return r
 
     def save_to_pkl(self, filepath):
         data = {

@@ -9,15 +9,15 @@ import random
 import torch
 from functools import partial
 import os
-from algorithm.base import Item,History_Buffer
+from algorithm.base import Item,HistoryBuffer
 from openai import AzureOpenAI
 from tdc.generation import MolGen
 
 from eval import get_evaluation
 import time
 from model.util import nsga2_selection,so_selection
-from algorithm import prompt_template
-
+from algorithm import PromptTemplate
+from eval import judge
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -45,12 +45,15 @@ class MOO:
         self.reward_system = reward_system
         self.config = config
         self.llm = llm
-        self.history = History_Buffer()
+        self.history = HistoryBuffer()
         self.property_list = property_list
         self.moles_df = None
         self.pop_size = self.config.get('optimization.pop_size')
         self.init_mol_dataset()
-        self.prompt_module = getattr(prompt_template ,self.config.get('model.prompt_module',default='Prompt'))
+        self.prompt_module = getattr(PromptTemplate ,self.config.get('model.prompt_module',default='Prompt'))
+        self.successful_moles = []
+        self.failed_moles = []
+    
 
     def init_mol_dataset(self):
         print('Loading ZINC dataset...')
@@ -90,9 +93,14 @@ class MOO:
         raw_results = np.zeros([len(smiles_list),len(ops)])
         for i,op in enumerate(ops):
             part_res = res[op]
+            #print('part res',part_res)
             for j,inst in enumerate(part_res):
-                inst = inst[0]
+                if isinstance(inst,list):
+                    inst = inst[1]
                 raw_results[j,i] = inst
+                value = self.transform4moo(inst,op,)
+                results[j,i] = value
+                '''
                 if op=='qed':
                     if 'increase' in self.requirement_meta['qed_requ']['requirement']:
                         results[j,i] = -inst
@@ -106,16 +114,12 @@ class MOO:
                         a, b = [int(x) for x in logp_requ.split(',')[1:]]
                         mid = (b+a)/2
                         results[j,i] = np.clip(abs(inst-mid) * 1/ ( (b-a)/2), a_min=0,a_max=1)    # 2-3    2.5  3-2.5=0.5 * 2     1 0
-                        #if a<=inst<=b:
-                        #    results[j,i] = 0
-                        #else:
-                        #    results[j,i] = 1     
                     else:
                         results[j,i] = inst/10
                 elif op=='donor':
                     #print('donor num',inst,donor_num,j,i)
                     donor_requ = self.requirement_meta['donor_requ']['requirement']
-                    donor_num = self.requirement_meta['donor_num']
+                    donor_num = self.original_mol.property['donor']
                     if donor_requ == 'increase' and inst - donor_num>0:
                         results[j,i] = 0
                     elif donor_requ == 'decrease' and donor_num - inst>0:
@@ -126,13 +130,50 @@ class MOO:
                         results[j,i] = 0
                     else:
                         results[j,i] = 1  
+                elif op=='similarity':
+                    results[j,i] = -inst
                 else:
                     raise NotImplementedError
+                '''
         return results,raw_results
+
+    def transform4moo(self,value,op):
+        '''
+         this means when the requirement is satisfied, if will give 0 (optimal value), other 1, this means when the requirement is satified,
+         this objective will not be main objectives to optimizes, this is useful when we only want the object to reach a certain 
+         threshold instead of maximizing or minimizing it
+        '''
+        original_value = self.original_mol.property[op]
+        requirement = self.requirement_meta[f'{op}_requ']['requirement']
+        if op =='similarity':
+            return -value
+        if op in ['donor','smartsFilter']: 
+            is_true = judge(requirement,original_value,value)
+            if is_true:
+                return 0
+            else:
+                return 1
+        else:
+            '''
+            this means the transformed value will only be minimized to as low as possible
+            '''
+            if 'range' in requirement:
+                a, b = [int(x) for x in requirement.split(',')[1:]]
+                mid = (b+a)/2
+                return np.clip(abs(value-mid) * 1/ ( (b-a)/2), a_min=0,a_max=1)
+            if op in ['logp','logs']:
+                value = value/10
+            if 'increase' in requirement:
+                return -value
+            elif 'decrease' in requirement:
+                return value
+            else:
+                print('only support increase or decrease and range for minimizing')
+                raise NotImplementedError
 
     def evaluate_all(self,items):
         smiles_list = [i.value for i in items]
-        smiles_list = [[i,smiles_list[0]] for i in smiles_list]
+        smiles_list = [[self.original_mol.value,i] for i in smiles_list]
         fitnesses,raw_results = self.evaluate(smiles_list)
         for i,ind in enumerate(items):
             ind.scores = fitnesses[i]
@@ -146,15 +187,15 @@ class MOO:
         
         #initialization 
         mol = extract_smiles_from_string(prompt)[0]
-        self.original_mol = mol
-        self.prompt_generator = self.prompt_module(self.original_mol,self.requirement_meta,self.property_list)
-
+        
 
         population = self.generate_initial_population(mol1=mol, n=self.pop_size)
-        donor_num = get_evaluation(['donor'], [[mol, mol]])['donor'][0][0]
-        self.requirement_meta['donor_num'] = donor_num
-        self.evaluate_all(population)
 
+        self.original_mol = population[-1] # this original_mol does not have property
+        self.evaluate_all(population)
+        self.original_mol = population[-1] # this original_mol has property
+
+        self.prompt_generator = self.prompt_module(self.original_mol,self.requirement_meta,self.property_list)
         init_pops = copy.deepcopy(population)
 
         #offspring_times = self.config.get('optimization.eval_budge') // ngen //2
@@ -185,6 +226,7 @@ class MOO:
         return offspring
 
     def check_valid(self,children):
+        # may use Chem.MolFromSmiles() to check validity
         tmp_offspring = []
         offspring = []
         for child_pair in children:
@@ -204,7 +246,6 @@ class MOO:
 
     def select_next_population(self, population, offspring, pop_size):
         combined_population = offspring + population 
-        #return self.no_selection(combined_population,pop_size)
 
         if len(self.property_list)>1:
             return nsga2_selection(combined_population, pop_size)

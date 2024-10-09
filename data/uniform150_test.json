@@ -170,6 +170,10 @@
                 "reference_smiles": "CC(C)C[NH+](CC(=O)[O-])C(F)(F)c1cc(C(=O)NC[C@H]2CCOc3ccccc32)ccc1F",
                 "property": "donor",
                 "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -190,6 +194,10 @@
                 "reference_smiles": "CN(C)c1cccc([C@@H]2CCCN2Cc2cnc3ccc(C4CCCCCCC4)cn23)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -210,6 +218,10 @@
                 "reference_smiles": "C#CCNC(=O)c1ccc(N2CCCC(c3nnc4n3CCCCC4)C2)nc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -230,6 +242,10 @@
                 "reference_smiles": "CCN1CCCC[C@@H]1Cn1c([C@H]2CCS(=O)(=O)C2)nnc1N(C)Cc1scnc1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -250,6 +266,10 @@
                 "reference_smiles": "CCCc1ccc(-c2ccccc2CN2CC[C@@H](NC(=O)c3ocnc3CC)C[C@H]2C)s1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -270,6 +290,10 @@
                 "reference_smiles": "CC(C)=Cc1cc(NC[C@@H]2CN(C(=O)C[C@H]3C=CCC3)CC23CCOCC3)c(Br)s1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -290,6 +314,10 @@
                 "reference_smiles": "Cc1ccc(NC(=O)Cn2nc3cc(C)nc(N4CCCC4)n3c2=O)c(F)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -310,6 +338,10 @@
                 "reference_smiles": "C=C(C)C(n1c([C@@H](C)Oc2ccc(F)cc2)nnc1N(C)C[C@@H]1CCN(C(C)=O)C1)C(C)(Br)CC(F)F",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -330,6 +362,10 @@
                 "reference_smiles": "COc1ccc(C(=O)N2C=C(c3ccccc3)N(C(Cc3ccccc3)C(O)(NC(C)=O)C(F)(F)F)C(=O)C2C(C)C)cc1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -350,6 +386,10 @@
                 "reference_smiles": "COc1cccc(CN2C(=O)CN(C(=O)c3cc4cc(OC(F)(F)F)ccc4[nH]3)CC2CCc2ccccc2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -369,6 +409,10 @@
                 "source_smiles": "C[Si](C)(C)ONC(=O)C1Cc2ccccc2CN1S(=O)(=O)c1ccc(C(F)(F)F)cc1",
                 "reference_smiles": "CC1CC(C(=O)[O-])C[NH+](C(F)(F)c2ccc(S(=O)(=O)N3Cc4ccccc4CC3C(=O)NO[Si](C)(C)C)cc2)C1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -390,6 +434,10 @@
                 "reference_smiles": "Cc1ccc(S(=O)(=O)N(Cc2ccccc2)c2ccc(OCC(=O)Nc3ccc(Cl)c(Cl)c3)cc2)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -410,6 +458,10 @@
                 "reference_smiles": "CC(C)c1cccc(OC(=O)[C@@H]2CC[C@H](C(=O)N3CCCC4(CCN(C(=O)Cn5cc(Cl)cn5)CC4)C3)C2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -429,6 +481,10 @@
                 "source_smiles": "CC(Cc1cncc(Br)c1)c1c(C2=c3ccc(Cl)cc3=NC(C(=O)OCc3ccccc3)C2)[nH]c(=O)n1-c1ccccc1",
                 "reference_smiles": "O=C(OCc1ccccc1)C1CC(c2[nH]c(=O)n(-c3ccccc3)c2O)=c2ccc(Cl)cc2=N1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -450,6 +506,10 @@
                 "reference_smiles": "C=CCc1cc(C(=O)N2CCCC2CC(Nc2ccc(F)c(C)c2)c2ccccc2)cc(OC)c1OC",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -469,6 +529,10 @@
                 "source_smiles": "Cc1ccccc1C(Cn1c(C)nc(Cl)c1Cl)C(=O)NC1CC(F)(F)C1",
                 "reference_smiles": "Cc1ccccc1C(Cn1c(C)nc(Cl)c1Cl)C(=O)NC1CC(F)(NC(=O)C(=O)NN)C1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -490,6 +554,10 @@
                 "reference_smiles": "CC[C@H]1CCN(c2nnc(-c3ccccc3CC(Br)c3cscc3C)n2Cc2ccsc2)C1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -510,6 +578,10 @@
                 "reference_smiles": "C=C(CNC(=O)c1cnccn1)N=CC=C(C)c1nc(NC2CCNC2)c2sccc2n1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -530,6 +602,10 @@
                 "reference_smiles": "CC(C)(C)OC(=O)N1Cc2nccnc2C[C@H]1C(=O)N1CC[C@@]2(CN(C(=O)NC(=O)C[NH+]3CCOCC3)CCO2)C1",
                 "property": "donor",
                 "requirement": "increase, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -550,6 +626,10 @@
                 "reference_smiles": "C=C(C)C1=C(Cn2c(-c3ccc(OCC)c(OC)c3)nnc2N2CCC[C@@H](NC(=O)CC)C2)C=CCC1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -570,6 +650,10 @@
                 "reference_smiles": "C1=CC2c3ccc(-c4ccc5c(c4)c4ccccc4n5C4=CC(C5=CCCC=C5)CCC4)cc3N(C3=CC4c5ccccc5OC4CC3)C2C=C1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -590,6 +674,10 @@
                 "reference_smiles": "CCn1cccc1C(=O)N[C@H]1[C@@H]2CN(CCC3CCCCC3)C[C@@H]21",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -610,6 +698,10 @@
                 "reference_smiles": "CCc1ccc(C(C)(C)Nc2ncnc3sc(CC)c(-c4ccc(C)c(C)c4)c23)cc1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -630,6 +722,10 @@
                 "reference_smiles": "CC(C)N[C@@H]1CCCN(C(=O)COc2ccc(C(F)(F)F)cc2)C1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -650,6 +746,10 @@
                 "reference_smiles": "Cc1ccc2cc(C(=O)N3CCOC[C@@]4(C3)CN(C(=O)c3cc5cn[nH]c5cn3)CCO4)ccc2n1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -670,6 +770,10 @@
                 "reference_smiles": "CC(=O)c1sc([C@@H]2OC[C@@H]3CCN(C(=O)[C@@]4(O)CCN(C(=O)OC(C)(C)C)C4)C[C@@H]32)c(NC(=O)c2ncccc2F)c1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -690,6 +794,10 @@
                 "reference_smiles": "CCCCC(CC)COCOC(=O)CC1CSC2(C(=O)Nc3c(Br)cccc32)C(c2ccc(OC)cc2)C1C=O",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -710,6 +818,10 @@
                 "reference_smiles": "CC(C)c1cccc(Oc2c(F)c(F)cc(CCN(Cc3ccc(C4CCC4)cc3)C(=O)c3cc(Cl)cc(C(F)(F)F)c3)c2F)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -730,6 +842,10 @@
                 "reference_smiles": "CC(C)c1cccc(OC[C@@H](C)NS(=O)(=O)c2ccc(NC(=O)C(=O)NCc3ccc(OC(F)F)cc3)cc2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -750,6 +866,10 @@
                 "reference_smiles": "CCCCC(CC)COCOc1ccc([C@@H]2C[C@H]2C(=O)N2CCO[C@]3(CCN(C(=O)c4ccnc5c4OCO5)C3)C2)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -770,6 +890,10 @@
                 "reference_smiles": "CCC(CC[C@@H]1COCCN1Cc1ccc(OC)cc1C)=C(CC)C(C)(C)C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -790,6 +914,10 @@
                 "reference_smiles": "CC[C@@H](C(=O)c1ccc(Cl)c(Cl)c1)N1CC[C@H]1CNC(=O)C1(CC(C)C)CCCC1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -810,6 +938,10 @@
                 "reference_smiles": "CCC(C)=C(CC)[C@@H](CC)C(=O)N[C@H](c1cccc(Cl)c1)c1ccccn1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -830,6 +962,10 @@
                 "reference_smiles": "CNS(=O)(=O)c1cc(-c2nc([C@H]3COCCN3C(=O)OC(C)(C)C)no2)ccc1OC",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -849,6 +985,10 @@
                 "source_smiles": "CC(C)(C)c1ccc(C(=O)Nc2cc(Cl)c(Cl)cc2Cl)cc1Br",
                 "reference_smiles": "[B]c1cc(Cl)c(N)c(NC(=O)c2ccc(C(C)(C)C)c(Br)c2)c1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -870,6 +1010,10 @@
                 "reference_smiles": "CCc1cc(Br)ccc1Nc1ccc(CNC(=O)c2cccc(NC(=O)N3CCSc4nc(C)cc(C)c43)c2)cc1",
                 "property": "donor",
                 "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -890,6 +1034,10 @@
                 "reference_smiles": "COc1cc(OC)cc(C(=O)NC2CCN(C(=O)c3ccc4nc[nH]c4c3)CC2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -909,6 +1057,10 @@
                 "source_smiles": "CC1=C(C)C[C@H](C(=O)N2CC(NC(=O)[C@@H](F)c3ccccc3)C2)CC1",
                 "reference_smiles": "CC1=C(C)C[C@H](C(=O)N2CC(NC(=O)[C@@H](NC(=O)C(=O)NN)c3ccccc3)C2)CC1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -930,6 +1082,10 @@
                 "reference_smiles": "CC(C)OCCC(=O)O[C@@H](C)C(=O)Nc1ccccc1C(F)(F)F",
                 "property": "donor",
                 "requirement": "decrease, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -950,6 +1106,10 @@
                 "reference_smiles": "O=C(Nc1ncc(Cc2ccc(F)cc2)s1)c1ccc(-c2ccccc2F)o1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -970,6 +1130,10 @@
                 "reference_smiles": "CCOC(=NC(=O)c1cc(C(F)(F)F)cc(C(F)(F)F)c1)N1Cc2ccccc2-c2ccccc2C1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -990,6 +1154,10 @@
                 "reference_smiles": "CCNCc1c(F)cccc1-n1cc(C(F)(F)F)cn1",
                 "property": "donor",
                 "requirement": "decrease, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1009,6 +1177,10 @@
                 "source_smiles": "CCOCCCn1c(Cc2ccccc2C)nnc1N1CC[C@@H](C(C)C)C1",
                 "reference_smiles": "CCOCCCn1c(Cc2ccccc2C)nnc1N1CC[C@@H](N(C)NS(C)(=O)=O)C1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -1030,6 +1202,10 @@
                 "reference_smiles": "COC(=O)c1c(NC(=O)CN2CCN(C(C)=O)CC2)sc2c1CCCC2",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1050,6 +1226,10 @@
                 "reference_smiles": "CC(C)c1cccc(Oc2cnc(-c3cccc4c3CC(NC(=O)c3ccc(COCC(F)(F)F)nc3)CCC4)cn2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1070,6 +1250,10 @@
                 "reference_smiles": "CC[C@@H](CC(=O)NC[C@@H]1OC[C@@H]2CCN(C(=O)c3cccn(C)c3=O)C[C@@H]21)NC(=O)OC(C)(C)C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1090,6 +1274,10 @@
                 "reference_smiles": "CC[C@H](NC(=O)c1cc2cc(F)ccc2s1)C(=O)N1CC[C@@H](CNC(=O)Cc2ccc(Cl)s2)[C@@H]1c1cccnc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1109,6 +1297,10 @@
                 "source_smiles": "C=C(C)C(CC1CC(Cc2cnc[nH]2)CC(CC2CCC(=O)N2)C1)C(C)(F)Br",
                 "reference_smiles": "NC(=O)CC1CC(Cc2cnc[nH]2)CC(CC2CCC(=O)N2)C1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -1130,6 +1322,10 @@
                 "reference_smiles": "CC(C)c1ccc([C@H](C)NS(=O)(=O)c2ccc(NC(=O)CCS(=O)(=O)c3ccc4c(c3)CCC4)cc2)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1150,6 +1346,10 @@
                 "reference_smiles": "CCN(CC)C(=O)CN1CCN(C(=O)Cc2csc(-c3cccs3)n2)CC1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1170,6 +1370,10 @@
                 "reference_smiles": "CO[C@@]1(C)CCCN(C(=O)Nc2cccc3c2OCCO3)C1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1190,6 +1394,10 @@
                 "reference_smiles": "C=CC(SOSC(C)c1c(C)nn2cccnc12)C(C)c1cc2cccc(C#Cc3cn(C)c4ccccc34)c2c(=O)n1-c1ccccc1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1210,6 +1418,10 @@
                 "reference_smiles": "CC(CCn1ccnc1C=C(OC(=O)c1ccc(F)cc1)c1ccc(F)cc1)c1cccc(Oc2ccccc2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1230,6 +1442,10 @@
                 "reference_smiles": "CC(=O)c1sc([C@@H]2OC[C@@H]3CCN(C(=O)c4ccc(Cl)c(Cl)c4)C[C@@H]32)c(NC(=O)c2nc3ncccn3n2)c1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1249,6 +1465,10 @@
                 "source_smiles": "CC1CCC(C(O)c2ccc(CCC(CO)(CO)SC(C)(C)C)cc2)CC1",
                 "reference_smiles": "CC1CCC(C(O)c2ccc(CCC(N)(CO)CO)cc2)CC1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -1270,6 +1490,10 @@
                 "reference_smiles": "Cc1ccccc1C1C(C(=O)c2cc3cc(Br)ccc3o2)=C(O)C(=O)N1c1cccc(F)c1",
                 "property": "donor",
                 "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1290,6 +1514,10 @@
                 "reference_smiles": "NC1CCCC1CC(=O)Nc1ccccc1C(=O)NOCC(=O)[O-]",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1310,6 +1538,10 @@
                 "reference_smiles": "CC(=O)c1cccc(O[C@H](C)C(=O)NCCC2CCC(Oc3cccc(C(C)C)c3)CC2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1329,6 +1561,10 @@
                 "source_smiles": "C=C(C)C(c1cnc2ccccn12)C(C)(Br)[C@@H]1CCc2nc(NC(=O)[C@H](C)Oc3ccccn3)sc2C1",
                 "reference_smiles": "C[C@H](Oc1ccccn1)C(=O)Nc1nc2c(s1)C[C@H](NC(=O)Cc1cnc3ccccn13)CC2",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -1350,6 +1586,10 @@
                 "reference_smiles": "CC(=O)c1sc(N2C(=O)COc3ccc(Cl)cc32)c(C(=O)N2[C@H]3CC[C@@H]2C[C@H](NC(=O)c2cncs2)C3)c1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1370,6 +1610,10 @@
                 "reference_smiles": "CC(C)c1cccc(OCCN(C)CCCn2c([C@@H]3CCS(=O)(=O)C3)nnc2N2CCN(C3CCCCC3)CC2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1390,6 +1634,10 @@
                 "reference_smiles": "C=CC(=O)Nc1cccc(-c2cccc3cnc(Nc4ccc(N5CCCCC5)cc4N[C@H](C)c4cc(Cl)ccc4O)nc23)c1",
                 "property": "donor",
                 "requirement": "increase, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1410,6 +1658,10 @@
                 "reference_smiles": "CC[C@@H](NC(=O)c1cc(Cl)c2c(c1)OCCCO2)c1ccc(C)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1430,6 +1682,10 @@
                 "reference_smiles": "Cc1ccc(Cn2c([C@H](C)NS(C)(=O)=O)nnc2N2CCN3C(=O)N(CC(C)C)C[C@@H]3C2)s1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1450,6 +1706,10 @@
                 "reference_smiles": "CCC(CCCOc1cc(-c2nc(C(=O)NC3CCCCC3)ccc2-c2ncccc2Cl)ccc1Cl)[C@@H](OC)c1ccccc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1470,6 +1730,10 @@
                 "reference_smiles": "CC(=O)c1sc(NC(=O)c2ccc3nn[nH]c3c2)c([C@H]2CCN(C(=O)c3cnc4c(c3)CCNCC4)[C@@H]2c2cccnc2)c1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1490,6 +1754,10 @@
                 "reference_smiles": "COc1ccc(C(c2cccc(C)c2)N2CCCC(C(=O)O)C2)c(OC)c1OC",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1510,6 +1778,10 @@
                 "reference_smiles": "C[C@@H](C(=O)NC1CCN(C2CCN(C(=O)C3CCCCC3)CC2)CC1)[C@@H]1SC(=N)NC1=O",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1529,6 +1801,10 @@
                 "source_smiles": "Cc1onc(C(=O)Nc2ccn(Cc3ccc(Br)cc3)n2)c1Cn1ccc([N+](=O)[O-])n1",
                 "reference_smiles": "Cc1onc(C(=O)Nc2ccn(Cc3cc(C(N)=[NH+]O)ccc3Br)n2)c1Cn1ccc([N+](=O)[O-])n1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -1550,6 +1826,10 @@
                 "reference_smiles": "Cc1cccc(C2CCCCCCC2)c1C(=O)NCC[C@H]1CCN(C(=O)C2=CCCC2)C1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1570,6 +1850,10 @@
                 "reference_smiles": "CCc1ocnc1C(=O)N[C@@H]1CCCCN(Cc2ccccc2C)C1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1590,6 +1874,10 @@
                 "reference_smiles": "CC(=O)N1N=C(c2cc(-c3ccc4ccccc4c3)ccc2F)SC12c1ccccc1OCC2CCNO",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1610,6 +1898,10 @@
                 "reference_smiles": "CC(C)c1cccc(OC(=O)c2ccc(CC(=O)NC[C@H]3CCN(C(=O)c4cnn5c4CCC5)[C@@H]3c3cccnc3)s2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1630,6 +1922,10 @@
                 "reference_smiles": "CCc1ccc(-c2nnc(N3C[C@H](C)C[C@@H](C)C3)n2CCOC(C)C)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1650,6 +1946,10 @@
                 "reference_smiles": "C[C@H](Cn1c([C@@H](C)NS(C)(=O)=O)nnc1N1CCc2cccc(Br)c2C1)N(C)C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1670,6 +1970,10 @@
                 "reference_smiles": "CCOc1ccccc1NC(=O)COc1c(OC)cc(C=O)cc1OC",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1690,6 +1994,10 @@
                 "reference_smiles": "CC(C)C(C)SSC(C)(C)C1=CCC(C2CCN(C(=O)C(NCC3=CC=CC(Cl)C3)C(C)C)CC2)CC1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1710,6 +2018,10 @@
                 "reference_smiles": "CC(C)C(C)c1cccc(Oc2cc(F)ccc2NC(=O)N[C@@H](C(=O)OC(C)(C)C)C(C)C)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1730,6 +2042,10 @@
                 "reference_smiles": "CCC(CC)=C(CC)C(C)C1CCc2ccc(OCc3ccc(-c4cc(OC)ccc4F)c(C4CCCC4(C)C)c3)cc21",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1750,6 +2066,10 @@
                 "reference_smiles": "CC(=O)Nc1ccc(S(=O)(=O)N[C@@H](C)C(=O)N2CCN(C(=O)c3ccccc3N[C@H](C)c3cc(Cl)ccc3O)CC2)cc1",
                 "property": "donor",
                 "requirement": "increase, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1770,6 +2090,10 @@
                 "reference_smiles": "CC(C)(C)c1ccc(C(=O)NN2CC(C(=O)OCC(=O)c3ccc(Cl)cc3Cl)CC2=O)cc1",
                 "property": "donor",
                 "requirement": "decrease, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1790,6 +2114,10 @@
                 "reference_smiles": "N#CCCCOc1cccc(NC(=O)C2C=CC(N)C2)c1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1810,6 +2138,10 @@
                 "reference_smiles": "O=C(COCc1ccccc1)N[C@H]1[C@@H]2COC[C@H]1CN(C(=O)c1ccc(-c3cc[nH]n3)cc1)C2",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1830,6 +2162,10 @@
                 "reference_smiles": "COc1cc(N2CCN(C(C)C)CC2)ccc1Nc1nc2c(c3nc4cccc(Br)c4c(=O)n13)CCN2S(=O)(=O)c1ccc(C)cc1",
                 "property": "donor",
                 "requirement": "decrease, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1850,6 +2186,10 @@
                 "reference_smiles": "Cn1cccc1C(=O)C(=O)N1CCC([C@H]2CCCCN2C(=O)c2ccc(-n3cccn3)nc2)CC1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1870,6 +2210,10 @@
                 "reference_smiles": "C[C@H](NC(=O)c1cnccn1)C(=O)N1CCCC[C@H]1c1cc(NC(=O)[C@H](C)n2cccn2)n[nH]1",
                 "property": "donor",
                 "requirement": "decrease, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1890,6 +2234,10 @@
                 "reference_smiles": "CCCc1occc1C(=O)N1CCC2(CC1)CCN([C@H](C)COC)C2",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1910,6 +2258,10 @@
                 "reference_smiles": "CC(Cc1ccc(OC2OC(C(=O)O)C(O)C(O)C2O)cc1)[n+]1cc(NC(=O)Nc2ccc(O)cc2)on1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1929,6 +2281,10 @@
                 "source_smiles": "CC(C)(C)SC1C2C=CC(C2)C1C(=O)Nc1cccc(-n2cccn2)c1",
                 "reference_smiles": "NC1C2C=CC(C2)C1C(=O)Nc1cccc(-n2cccn2)c1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -1950,6 +2306,10 @@
                 "reference_smiles": "CC(C)Sc1ccc(N(CC(=O)Nc2ccccc2C(=O)Nc2ccc3c(c2)OCO3)Cc2ccccc2)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -1969,6 +2329,10 @@
                 "source_smiles": "COc1cccc(C(=O)NN=Cc2ccc(OC(C)C)cc2OC(C)C)c1",
                 "reference_smiles": "CC(C)Oc1ccc(C=NNC(=O)c2cccc(OCNc3cc(Cl)ccc3Cl)c2)c(OC(C)C)c1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -1990,6 +2354,10 @@
                 "reference_smiles": "CC(C)C[NH+](CC(=O)[O-])[C@H]1C[C@H]1C(=O)N1C[C@@H]2COC[C@H](C1)[C@@H]2NC(=O)Cc1c[nH]c2cccc(Br)c12",
                 "property": "donor",
                 "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2010,6 +2378,10 @@
                 "reference_smiles": "Cc1ccc(S(=O)(=O)N2CCC(SC(C)(C)C)CC2)c(Br)c1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2030,6 +2402,10 @@
                 "reference_smiles": "CC(=O)Nc1cc(C(=O)N2CC[C@H](CNC(=O)[C@H](C)n3cccn3)[C@@H]2c2cccnc2)ccc1-c1cccc2c1[C@H](C)C[C@H]2C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2050,6 +2426,10 @@
                 "reference_smiles": "CC(NC1(F)CN(C2=Cc3ccccc3C2c2c(-c3ccccc3)cc(N=[N+]=[N-])c(F)c2C2CC2)C1)c1ccc(Br)s1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2070,6 +2450,10 @@
                 "reference_smiles": "Cc1ccc(-c2nc(CCNC(=O)C=Cc3c(C(C)(C)SSC(C)C(C)C)nc4sccn34)cs2)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2090,6 +2474,10 @@
                 "reference_smiles": "CCCCC(CC)COCN1CCC(NC(=O)N2CCN(CC)C(c3ncc[nH]3)C2)C1c1ccccc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2110,6 +2498,10 @@
                 "reference_smiles": "CCCCC(NS(=O)(=O)c1cc(Cl)cc(C(=O)NC)c1Oc1cccc(C(C)C)c1)C(=O)O",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2130,6 +2522,10 @@
                 "reference_smiles": "CCCCC(CC)COCN=C(NCc1ccc(-n2ccnc2C)nc1)N1CCN(C(=O)C2CCCO2)CC1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2150,6 +2546,10 @@
                 "reference_smiles": "CC(NC(=O)C(CC(=O)O)SC(C)(C)C)c1cc(F)ccc1F",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2170,6 +2570,10 @@
                 "reference_smiles": "C[C@H](NCC1CC1)[C@@H]1CN(C(=O)C2([C@@H](F)NC(=O)C(=O)NN)CCC2)CCO1",
                 "property": "donor",
                 "requirement": "increase, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2190,6 +2594,10 @@
                 "reference_smiles": "CC(C(=O)[O-])n1cnnc1SCC(=O)Nc1c(C#N)c2c(n1-c1ccccc1)CCCC2",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2210,6 +2618,10 @@
                 "reference_smiles": "CCc1ccccc1O[C@@H](C(=O)N1CCC(N)CC1)c1ccccc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2230,6 +2642,10 @@
                 "reference_smiles": "Cc1cc(C(=O)N2CCC(NC(=O)CNC(=O)OC(C)(C)C)CC2)no1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2250,6 +2666,10 @@
                 "reference_smiles": "COc1ccc(C(=O)N2CC[C@@H]2CNC(=O)C(C)(C)OCC(=O)[O-])cc1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2269,6 +2689,10 @@
                 "source_smiles": "CC(C)N1CC[C@H](N(C)C(=O)c2ccc(O[C@H](C)c3ccccc3)cc2)C1",
                 "reference_smiles": "CC(C)N1CC[C@H](N(C)C(=O)c2cc(C(N)=[NH+]O)ccc2O[C@H](C)c2ccccc2)C1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -2290,6 +2714,10 @@
                 "reference_smiles": "COC[C@@H]1CN(c2nnc(-c3cnn(C)c3)n2Cc2ccc(OC(F)F)c(F)c2)C[C@@H](C)O1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2310,6 +2738,10 @@
                 "reference_smiles": "CCCc1ccc(-c2cc(-c3cn(CCN4CCCC4)c(C4CCN(c5ncnc6[nH]c(=O)[nH]c56)CC4)n3)ccc2F)s1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2330,6 +2762,10 @@
                 "reference_smiles": "NNC(=O)C(=O)NC(F)(F)c1ccc(-n2[nH][n+](-c3ccccc3N)cc2=O)cc1",
                 "property": "donor",
                 "requirement": "increase, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2350,6 +2786,10 @@
                 "reference_smiles": "Cc1cccc(OCc2nc(-c3cccc(-c4csc(C5CC5)n4)c3)no2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2370,6 +2810,10 @@
                 "reference_smiles": "CC(=O)c1sc([C@H]2CCN(C(=O)c3cccn4cncc34)[C@H]2c2cccnc2)c(NC(=O)c2cnc(O)nc2O)c1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2390,6 +2834,10 @@
                 "reference_smiles": "CCc1cc(-c2cccc(C#N)c2)nn1CC(=O)N1CCN(c2ccccn2)CC1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2410,6 +2858,10 @@
                 "reference_smiles": "C[C@@H](CCCNc1ncc(C(=O)O)cn1)NC(=O)[C@@H](C)OCC(=O)[O-]",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2430,6 +2882,10 @@
                 "reference_smiles": "Cc1cc(-c2cc(N(C(=O)C3CCC(C)CC3)C(C)C)c(C=O)s2)cnc1N",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2450,6 +2906,10 @@
                 "reference_smiles": "Cc1ccc(C(=O)Cc2cc(-n3ccnc3)cc(C(F)(F)F)c2)cc1C#Cc1cnc2ccccn12",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2470,6 +2930,10 @@
                 "reference_smiles": "CCCCC(CC)COCOc1c(OC)ccc2c(C)c(CC(=O)N3CCN(CCc4ccncc4)CC3)c(=O)oc12",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2490,6 +2954,10 @@
                 "reference_smiles": "CCC(C)=C(CC)c1c(NC(=O)CSc2nnnn2-c2cc(C)ccc2OC)sc(C)c1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2510,6 +2978,10 @@
                 "reference_smiles": "COC(=O)[C@H](Cc1cccc(S(C)(=O)=O)c1)N[C@@H]1C[C@@H](C)N(C(=O)OC(C)(C)C)[C@@H](C)C1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2530,6 +3002,10 @@
                 "reference_smiles": "O=C(N[C@H]1[C@@H]2COC[C@H]1CN(C(=O)c1ccc(C(F)(F)F)[nH]1)C2)c1c(F)ccc(O)c1F",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2550,6 +3026,10 @@
                 "reference_smiles": "COC[C@@H]1CN(c2nnc(CN3CCCC3=O)n2Cc2ccnc(OCC(F)(F)F)c2)C[C@H](C)O1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2569,6 +3049,10 @@
                 "source_smiles": "CC(CBr)(CBr)CC1CC(C(=O)NCCc2ccccc2)N(C(=O)OCc2ccccc2)C1",
                 "reference_smiles": "O=C(NCCc1ccccc1)C1CC(S)CN1C(=O)OCc1ccccc1",
                 "property": "donor",
+                "requirement": "increase"
+            },
+            "similarity_requ": {
+                "property": "similarity",
                 "requirement": "increase"
             }
         },
@@ -2590,6 +3074,10 @@
                 "reference_smiles": "CCCCC(CC)COCOC(=O)c1cc(C)c(S(=O)(=O)Nc2ncc(Br)nc2OCc2ccccc2)s1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2610,6 +3098,10 @@
                 "reference_smiles": "COc1ccc(CCNCCC(=O)Nc2cc(OC)c(Cl)cc2OC)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2630,6 +3122,10 @@
                 "reference_smiles": "O=C(NC(=S)N1CCN(c2ccccc2F)CC1)c1ccccc1F",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2650,6 +3146,10 @@
                 "reference_smiles": "CCc1sc2ncnc(NC3CCC(N(C)C)CC3)c2c1C1=Cc2ccccc2C1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2670,6 +3170,10 @@
                 "reference_smiles": "CCOc1ccc(C(O)=C2C(=O)C(=O)N(c3ccc(-c4cccc5c4[C@H](C)C[C@H]5CC)cc3)C2c2ccccc2)c(OCC)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2690,6 +3194,10 @@
                 "reference_smiles": "CCOc1cc(CN2Cc3ccccc3[C@@H]3CNC[C@@H]32)ccc1F",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2710,6 +3218,10 @@
                 "reference_smiles": "CC1(c2ccc([N+](=O)[O-])cc2)NC(=O)N(NC(=S)Nc2ccccc2F)C1=O",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2730,6 +3242,10 @@
                 "reference_smiles": "CC(C)C(C)SSC(C)(C)c1nc(NCc2cc(F)ccc2F)c(=O)n(CC(=O)O)c1-c1ccccc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2750,6 +3266,10 @@
                 "reference_smiles": "COc1cc(C2(C(=O)N[C@H]3CCC(C)(C)C[C@@H]3C)CC2)ccc1C",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2770,6 +3290,10 @@
                 "reference_smiles": "CC(C)CCC(=O)N[C@@H]1CC12CCN(C(=O)[C@@H]1CC13CCC3)CC2",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2790,6 +3314,10 @@
                 "reference_smiles": "O=C(c1ccc2[nH]c(=O)oc2c1)C1CCN(C(=O)NC2CCCCC2)CC1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2810,6 +3338,10 @@
                 "reference_smiles": "CC(C)NS(=O)(=O)c1ccc(NC(=O)[C@@H](C)OC(=O)[C@@H](C)Oc2cccc(F)c2)cc1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2830,6 +3362,10 @@
                 "reference_smiles": "Cc1cc(C)c([C@@H](c2ccccc2)[C@@H](NC(=O)c2cc(-c3ccco3)[nH]n2)C(C)C)c(C)c1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2850,6 +3386,10 @@
                 "reference_smiles": "COc1ccc(-c2ccc(=O)n(C(C)C(=O)Nc3ccc(F)c([N+](=O)[O-])c3)n2)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2870,6 +3410,10 @@
                 "reference_smiles": "COCCN1C(=O)CC(CNC2CCC(OC)CC2)C1c1cnn(C)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2890,6 +3434,10 @@
                 "reference_smiles": "Cc1ccc(C(=O)N2CCCC(C)C2CNc2nc3ccc(F)cc3o2)c(-c2ncccn2)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2910,6 +3458,10 @@
                 "reference_smiles": "CCCCC(CC)COCN1CC(COS(=O)(=O)c2ccc(C)cc2)CC2(OC)c3cccc4[nH]cc(c34)CC12",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2930,6 +3482,10 @@
                 "reference_smiles": "CC(=O)NCCNC1CCc2c(sc3ncn(Cc4c(N[C@H](C)c5cc(Cl)ccc5O)ccc5ccccc45)c(=O)c23)C1",
                 "property": "donor",
                 "requirement": "increase, >=2"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2950,6 +3506,10 @@
                 "reference_smiles": "COc1ccc(C=NNC(=O)c2cc(Cl)ccc2O)c(OC)c1OC",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2970,6 +3530,10 @@
                 "reference_smiles": "Cc1ccc2nc(-c3cc(Cl)c(Sc4nnc(-c5ccccc5Cl)n4C4CCCC4)c(Cl)c3)cc(=O)n2c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -2990,6 +3554,10 @@
                 "reference_smiles": "O=C(N[C@H]1CCc2nc(NC(=O)C3(C(F)(F)F)CC3)sc2C1)c1cnn2cccnc12",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3010,6 +3578,10 @@
                 "reference_smiles": "CC(C)(C)SC(Cc1ccccc1)C(=O)N1CCC(Oc2ccc(F)cc2F)CC1",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3030,6 +3602,10 @@
                 "reference_smiles": "CSc1c(-c2cc(-c3ccccc3)nn2-c2ccccc2)c(=O)oc2c1cnc1ccccc12",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3050,6 +3626,10 @@
                 "reference_smiles": "CC[C@@H](C[C@@H](C)CSc1ccc(C)cc1)NC(=O)Nc1ccc(C)c(NC(C)=O)c1C",
                 "property": "donor",
                 "requirement": "decrease"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3070,6 +3650,10 @@
                 "reference_smiles": "CC(=O)c1ccc2c(C3CCCCC3)c3n(c2c1)CCCc1c-3ccc2[nH]c(-c3cc(C)sc3C)cc12",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3090,6 +3674,10 @@
                 "reference_smiles": "CNC(c1ccc(C(C)(C)C(F)(F)F)s1)C1CCN(c2nnc(C)n2Cc2ccccc2CN2CC[C@@H](O)C2)CC1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3110,6 +3698,10 @@
                 "reference_smiles": "C[C@@H](C(=O)N1CC[C@@]2(CN(C(=O)Cc3cn4c(nc3=O)SCC4)CCO2)C1)c1ccccc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3130,6 +3722,10 @@
                 "reference_smiles": "CC(C)c1cccc(Oc2ccccc2CN(C)c2cnc3[nH]ccc3c2N(C=O)C(C)C)c1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         },
         {
@@ -3150,6 +3746,10 @@
                 "reference_smiles": "CCOc1ccc(C=C2N=C(c3ccc(Br)cc3)N(c3ccc(C)cc3)C2=O)cc1",
                 "property": "donor",
                 "requirement": "the same"
+            },
+            "similarity_requ": {
+                "property": "similarity",
+                "requirement": "increase"
             }
         }
     ]

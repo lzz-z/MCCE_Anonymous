@@ -15,7 +15,7 @@ class Item:
 
 import pickle
 import os
-class History_Buffer:
+class HistoryBuffer:
     def __init__(self):
         self.prompts = []
         self.generations = []

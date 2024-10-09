@@ -1,42 +1,50 @@
-def judge_donor(  requirement, simi_requirement, similarity, donor_input_mol, donor_response_mol, delta= 1e-9 ):
-    if requirement == 'increase':
-        return (donor_response_mol > donor_input_mol + delta and similarity>simi_requirement)
-    if requirement == 'decrease':
-        return (donor_response_mol < donor_input_mol - delta  and similarity>simi_requirement)
-    if requirement == 'the same':        
-        return (abs(donor_input_mol - donor_response_mol) < delta and similarity>simi_requirement)
-    if requirement == 'increase, >=2':
-        return (donor_response_mol - donor_input_mol >= 2 and similarity>simi_requirement)
-    if requirement == 'decrease, >=2':
-        return (donor_input_mol - donor_response_mol>=2 and similarity>simi_requirement)
-        
-    raise ValueError(f'Invalid requirement: {requirement}')
+import re
+def extract_symbol_and_number(requirement_str):
+    pattern = r'([<>]=?|==|!=)\s*(-?\d+(\.\d+)?)'
+    match = re.search(pattern, requirement_str.strip())
+    
+    if match:
+        symbol = match.group(1)  # Extracts the comparison symbol (e.g., '>=', '==', '!=', etc.)
+        number = float(match.group(2))  # Extracts the number (as a float, e.g., 2, -3, 3.14, etc.)
+        return symbol, number
+    else:
+        print('The format of requirement is wrong:', requirement_str)
+        raise NotImplementedError
 
-def judge_qed(  requirement, simi_requirement, similarity, qed_input_mol, qed_response_mol, delta=1e-9 ):
-    if abs(qed_response_mol) == 0:
-        return False
-    if requirement == 'increase':
-        return (qed_response_mol > qed_input_mol + delta and similarity>simi_requirement)
-    if requirement == 'decrease':
-        return (qed_response_mol < qed_input_mol - delta and similarity>simi_requirement)
-    if requirement == 'increase, >=0.1':
-        return ( qed_response_mol - qed_input_mol >= 0.1 and similarity>simi_requirement)
-    if requirement == 'decrease, >=0.1':
-        return ( qed_input_mol - qed_response_mol >= 0.1 and similarity>simi_requirement)
-    raise ValueError(f'Invalid requirement: {requirement}')
-
-def judge_logp(  requirement, simi_requirement, similarity, logp_input_mol, logp_response_mol, delta=1e-9 ):
-    if abs(logp_response_mol) == 100:
-        return False
-    if requirement == 'increase':
-        return (logp_response_mol > logp_input_mol + delta and similarity>simi_requirement)
-    if requirement == 'decrease':
-        return (logp_response_mol < logp_input_mol - delta and similarity>simi_requirement)
-    if 'range,' in requirement:
-        a, b = [int(x) for x in requirement.split(',')[1:]]
-        return (a<=logp_response_mol<=b and similarity>simi_requirement)
-    raise ValueError(f'Invalid requirement: {requirement}')
-
+def judge(requirement,input_mol_value,output_mol_value):
+    metas = requirement.split(',')
+    if metas[0] == 'the same':
+        return (input_mol_value == output_mol_value)
+    if metas[0] == 'equal':
+        return (output_mol_value == float(metas[1]))
+    if len(metas) < 3 and metas[0] in ['increase','decrease']: # examples:  'increase, >=2' ,'decrease, >=2'
+        direction = metas[0]
+        if len(metas) == 1:
+            symbol,number = '>',0
+        elif len(metas) == 2:
+            symbol,number =  extract_symbol_and_number(metas[1])
+        if direction == 'increase':
+            diff = output_mol_value - input_mol_value
+        elif direction == 'decrease':
+            diff = input_mol_value - output_mol_value
+        else:
+            raise NotImplementedError
+        if symbol == '>=':
+            return diff >= float(number)
+        elif symbol == '>':
+            return diff > float(number)
+        elif symbol == '<=':
+            return diff <= float(number)
+        elif symbol == '<':
+            return diff < float(number)
+        elif symbol == '==':
+            return diff == float(number)
+        else:
+            raise NotImplementedError
+    elif len(metas) == 3:
+        assert metas[0] == 'range' # only support range currently, e.g. 'range, 7, 8'
+        a, b = [float(x) for x in requirement.split(',')[1:]]
+        return (a<=output_mol_value<=b)
 
 import re
 from tqdm import tqdm
@@ -65,7 +73,7 @@ def mean_sr(r,num_candiate=5):
     new_sr = k.sum()/ (len(k)*num_candiate)
     return r.mean(), (r>0).sum()/len(r),new_sr
 
-def eval_mo_results(dataset,obj,similarity_requ=0.4,ops=['qed','logp','donor']):
+def eval_mo_results(dataset,obj,ops=['qed','logp','donor']):
     hist_success_times = []
     prompts = dataset['prompts']
     requs = dataset['requirements']
@@ -74,29 +82,27 @@ def eval_mo_results(dataset,obj,similarity_requ=0.4,ops=['qed','logp','donor']):
         mol = extract_smiles_from_string(prompt)[0]
         #print(mol)
         final_pops = obj['final_pops'][index]
-        combine_mols = [[mol, i.value] for i in final_pops]
-        eval_res = get_evaluation(['similarity']+ops,combine_mols)
+        input_mol = obj['init_pops'][index][-1] # get the original mol
+        assert input_mol.value == mol
+        #combine_mols = [[mol, i.value] for i in final_pops] # this format for compatibility, but properties like qed,logp will only
+                                                            # evaluate the mols at [:,1]
+        #eval_res = get_evaluation(ops,combine_mols)
         success_times = 0
-        for i in range(len(final_pops)):
-            if eval_one(ops,requs,index,similarity_requ,eval_res,i):
+        for output_mol in final_pops:
+            if eval_one(ops,requs[index],input_mol,output_mol):
                 success_times+=1
         #print('success times:',success_times)
         hist_success_times.append(success_times)
-        
     return np.array(hist_success_times)
 
-def eval_one(ops,requs,index,similarity_requ,eval_res,i):
-    if 'donor' in ops:
-        input_mol_donor = eval_res['donor'][0][0]
-    if 'qed' in ops:
-        input_mol_qed = eval_res['qed'][0][0]
-    if 'logp' in ops:
-        input_mol_logp = eval_res['logp'][0][0]
+def eval_one(ops,requs,input_mol,output_mol):
     for op in ops:
-        if op == 'qed' and not judge_qed(requs[index]['qed_requ']['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_qed,eval_res['qed'][i][1]):
-            return False
-        if op=='logp' and not judge_logp(requs[index]['logp_requ']['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_logp,eval_res['logp'][i][1]):
-            return False
-        if op=='donor' and not judge_donor(requs[index]['donor_requ']['requirement'],similarity_requ,eval_res['similarity'][i],input_mol_donor,eval_res['donor'][i][1]):
-            return False
+        
+        if op=='similarity':
+            if not judge('range, 0.4, 1', input_mol.property[op],output_mol.property[op]):
+                return False
+        else:
+            if not judge(requs[op+'_requ']['requirement'], input_mol.property[op],output_mol.property[op]):
+                return False
     return True
+

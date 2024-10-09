@@ -11,7 +11,7 @@ optimization:
   eval_budget: 200
   ngen: 10
 
-prompt_template: "/home/v-nianran/src/MOLLM/data/.json"
+
 
 dataset:
   path: "/home/v-nianran/src/MOLLM/data/uniform150_test.json"
