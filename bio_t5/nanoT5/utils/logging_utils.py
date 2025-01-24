@@ -8,7 +8,8 @@ import transformers
 import neptune
 import os
 
-
+logging.getLogger('azure').setLevel(logging.WARNING)
+logging.getLogger('httpx').setLevel(logging.WARNING)
 class Averager:
     def __init__(self, weight: float = 1):
         self.weight = weight

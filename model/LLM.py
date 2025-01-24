@@ -3,6 +3,7 @@ from openai import AzureOpenAI
 from azure.identity import AzureCliCredential, ChainedTokenCredential, DefaultAzureCredential, get_bearer_token_provider
 class LLM:
     def __init__(self,model='chatgpt'):
+        print(f'using model: {model}')
         self.model_choice = model
         self.model = self._init_model(model)
         self.chat = self._init_chat(model)
@@ -17,7 +18,7 @@ class LLM:
 
     def _init_chatgpt(self):
         # Set the necessary variables
-        resource_name = "sfm-openai-sweden-central"#"gcrgpt4aoai2c" sfm-openai-sweden-central  ds-chatgpt4o-ai-swedencentral
+        resource_name = "ds-chatgpt4o-ai-swedencentral"#"gcrgpt4aoai2c" sfm-openai-sweden-central  ds-chatgpt4o-ai-swedencentral
         endpoint = f"https://{resource_name}.openai.azure.com/"
         api_version = "2024-02-15-preview"  # Replace with the appropriate API version
 

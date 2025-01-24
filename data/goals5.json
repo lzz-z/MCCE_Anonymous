@@ -23,6 +23,10 @@
             "jnk3_requ": {
                 "property": "JNK3",
                 "requirement": "increase"
+            },
+            "bbbp_requ": {
+                "property": "BBBP",
+                "requirement": "increase"
             }
         }
     ]

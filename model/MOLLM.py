@@ -44,8 +44,8 @@ class MOLLM:
         self.config = ConfigLoader(config)
         self.property_list = self.config.get('goals')
         if not eval:
-            self.reward_system = RewardingSystem(material=self.config.get('material'))
-        self.llm = LLM()
+            self.reward_system = RewardingSystem(material=self.config.get('material'),config=self.config)
+        self.llm = LLM(model = self.config.get('model.name'))
         self.seed = seed
         self.history = []
         self.load_dataset()
@@ -61,7 +61,6 @@ class MOLLM:
             'mean success rate': 0,
             'success num each problem': []
         }
-        self.yue_smiles = pd.read_csv('/home/v-nianran/src/MOLLM/data/smiles1960.csv').smiles.values
     
     def load_dataset(self):
         with open(self.config.get('dataset.path'), 'r') as json_file:
@@ -81,14 +80,6 @@ class MOLLM:
                 self.evaluate() # evaluate self.final_pops and self.init_pops
             self.save_to_pkl(self.save_path)
 
-            self.check_repeat()
-    def check_repeat(self):
-        time = 0
-        for pops in self.final_pops:
-            for p in pops:
-                if p.value in self.yue_smiles:
-                    time += 1
-        print(f'There are {time} molecules repeated')
 
 
     def load_evaluate(self):

@@ -2,7 +2,8 @@ import requests
 import json
 url = 'http://cpu1.ms.wyue.site:8000/process'
 import time
-
+from functools import partial
+from bio_t5.test_bbbp import load_bbbp_model,get_bbbp
 import numpy as np
 from tqdm import tqdm
 def get_evaluation(evaluate_metric, smiles):
@@ -16,7 +17,7 @@ def get_evaluation(evaluate_metric, smiles):
 
 from tdc import Oracle, Evaluator
 class RewardingSystem:
-    def __init__(self,use_tqdm=False,chunk_size=20,material=False):
+    def __init__(self,use_tqdm=False,chunk_size=20,material=False,config=None):
         tdc_func = ['GSK3B','JNK3','DRD2','SA',
                     'QED','LogP','Celecoxib_Rediscovery','Troglitazone_Rediscovery',
                     'Thiothixene_Rediscovery',
@@ -26,7 +27,7 @@ class RewardingSystem:
                     'Perindopril_MPO','Amlodipine_MPO','Sitagliptin_MPO',
                     'Zaleplon_MPO','Valsartan_SMARTS','Scaffold Hop',]
         
-        
+        self.config = config
         tdc_evaluator = ['Diversity','Uniqueness','Validity','Novelty']
         self.all_rewards = {
             name.lower():Oracle(name=name) for name in tdc_func
@@ -44,6 +45,9 @@ class RewardingSystem:
         }
         self.use_tqdm = use_tqdm
         self.chunk_size=chunk_size
+        if 'bbbp' in self.config.get('goals'):
+            tokenizer,model = load_bbbp_model()
+            self.all_rewards['bbbp'] = partial(get_bbbp,tokenizer=tokenizer,model=model)
     
 
     def register_reward(self, reward_name, reward_function):

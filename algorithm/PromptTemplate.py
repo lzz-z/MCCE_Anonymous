@@ -292,6 +292,11 @@ descriptions = {
         "Introducing small polar or electronegative groups can enhance binding affinity to JNK3."
         "Removing polar functional groups or adding large, bulky substituents can reduce activity by obstructing the active site."
     ),
+    "bbbp":(
+        "The BBBP (Blood-Brain Barrier Permeability) is a measure of how well a molecule can cross the blood-brain barrier"
+        "Increasing the hydrophobicity, optimizing molecular size, and modifying functional groups to enhance lipophilicity can increase BBBP."
+        "Introducing polar or charged groups, increasing molecular size, and adding hydrogen-bond donors can decrease BBBP."
+    ),
     "smarts_filter":(
         "To pass the SMARTS filter, the proposed molecule must not have the following substructures:"
         "reactive alkyl halides: [Br,Cl,I][CX4;CH,CH2]"
