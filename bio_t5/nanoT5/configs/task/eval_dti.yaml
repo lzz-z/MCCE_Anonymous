@@ -1,0 +1,59 @@
+# @package _global_
+
+mode: 'ft'
+
+predict_only: true
+
+model:
+  name: 'google/t5-v1_1-base'
+  checkpoint_path: '/protein/users/v-qizhipei/checkpoints/unimpt/finetune_ft_dti_0601-gpu2_bsz48_acc24_ts50000_eps100_ws1000_cosine_lr1e-3_dp0.0_seed128/checkpoint-ft-10000/pytorch_model.bin'
+  dropout: 0.0
+  random_init: false
+  compile: false # Pytorch 2.0
+
+
+data:
+  max_seq_len: 1024
+  max_target_len: 8
+  max_num_instances_per_task: 100000
+  add_task_name: False
+  add_task_definition: True
+  num_pos_examples: 0
+  num_neg_examples: 0
+  add_explanation: False
+  tk_instruct: False
+  exec_file_path: utils/ni_dataset.py
+  data_dir: /protein/users/v-qizhipei/data/unimpt_finetune/splits/dti
+  task_dir: /protein/users/v-qizhipei/data/unimpt_finetune/tasks
+
+optim:
+  name: adamw
+  base_lr: 1e-3
+  batch_size: 128
+  epochs: -1
+  total_steps: 50000
+  warmup_steps: 1000
+  lr_scheduler: cosine
+  weight_decay: 0.0
+  grad_clip: 0.0
+  grad_acc: 1
+  test_bsz_multi: 1
+
+eval:
+  every_steps: 1000
+  steps: 100000 # whole test set
+
+pred:
+  every_steps: 1000
+
+checkpoint:
+  every_steps: 5000
+
+hydra:
+  job:
+    chdir: True
+  run:
+    dir: ./logs/eval_dti_local
+
+test_task: dti
+result_fn: test_dti_pred.tsv

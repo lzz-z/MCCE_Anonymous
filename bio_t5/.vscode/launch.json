@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/rl4s/Projects/biot5_pred/nanoT5/main.py",
+            "console": "integratedTerminal",
+            "cwd" : "/rl4s/Projects/biot5_pred/nanoT5",
+            "justMyCode": false,
+            // "args": "${command:pickArgs}"
+            "args": [
+                "task=eval_molnet",
+                "data.task_dir=/rl4s/Projects/biot5_pred/tasks",
+                "data.data_dir=/rl4s/Projects/biot5_pred/splits/increase_bbbp",
+                "test_task=save_cls",
+                "result_fn=biot5_pred.tsv",
+                "model.checkpoint_path=/blob/v-qizhipei/checkpoints/biot5/bbbp/240508_gpu1_bsz4_acc1_ts50000_eps100_ws100_cosine_lr3e-4_dp0.1_seed256/checkpoint-ft-12400/pytorch_model.bin",
+                "hydra.run.dir=./logs/increase_bbbp",
+                "data.max_seq_len=1024"
+            ]
+        }
+    ]
+}
