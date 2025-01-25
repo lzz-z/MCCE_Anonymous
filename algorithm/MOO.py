@@ -65,7 +65,9 @@ class MOO:
         self.repeat_num = 0
         self.failed_num = 0
         self.llm_calls = 0
-
+        self.patience = 0
+        self.old_score = 0
+        self.early_stopping = False
     def init_mol_dataset(self):
         print('Loading ZINC dataset...')
         data = MolGen(name='ZINC')
@@ -221,41 +223,43 @@ class MOO:
         avg_top100 = np.mean([i.total for i in top100])
         avg_sa = np.mean([i.property['sa'] for i in top100])
         diversity_top100 = self.reward_system.all_evaluators['diversity']([i.value for i in top100])
-
-        top1_bbbp = top10[0].property['bbbp']
-        top10_bbbp = np.mean([i.property['bbbp'] for i in top10])
-        top100_bbbp = np.mean([i.property['bbbp'] for i in top100])
-        
-        already = 0
-        #all_zinc_mols = self.moles_df.smiles.values
-        #for i in self.all_mols:
-        #    if i.value in all_zinc_mols:
-        #        already += 1 
-        self.results_dict['results'].append(
-            {   'all_unique_moles': len(self.history_moles),
-                'llm_calls': self.llm_calls,
-                'Uniqueness':1-self.repeat_num/(self.llm_calls*2+1e-6),
-                'Validity':1-self.failed_num/(self.llm_calls*2+1e-6),
-                #'Novelty':1-already/(self.llm_calls*2+1e-6),
-                'avg_top1':top10[0].total,
-                'avg_top10':avg_top10,
-                'avg_top100':avg_top100,
-                'bbbp_top1':top1_bbbp,
-                'bbbp_top10':top10_bbbp,
-                'bbbp_top100':top100_bbbp,
-                'div':diversity_top100,
-            })
-        
-        json_path = os.path.join(self.config.get('save_dir'),"results",'_'.join(self.property_list) + '_' + self.config.get('save_suffix') + f'_{self.seed}'+'.json')
-        if not os.path.exists(os.path.dirname(json_path)):
-            os.makedirs(os.path.dirname(json_path), exist_ok=True)
             
-        self.results_dict['params'] = self.config.to_string()
-        self.results_dict['history_experience']  = self.history_experience
-        with open(json_path,'w') as f:
-            json.dump(self.results_dict, f, indent=4)
+        new_score = avg_top100
+        # import ipdb; ipdb.set_trace()
+        if (new_score - self.old_score) < 1e-3:
+            self.patience += 1
+            if self.patience >= 5:
+                print('convergence criteria met, abort ...... ')
+                self.early_stopping = True
+        else:
+            self.patience = 0
+        self.old_score = new_score
         
-        print(f'{len(self.history_moles)}/{self.budget} | '
+        if 'bbbp' in self.property_list:
+            top1_bbbp = top10[0].property['bbbp']
+            top10_bbbp = np.mean([i.property['bbbp'] for i in top10])
+            top100_bbbp = np.mean([i.property['bbbp'] for i in top100])
+            
+            # already = 0
+            #all_zinc_mols = self.moles_df.smiles.values
+            #for i in self.all_mols:
+            #    if i.value in all_zinc_mols:
+            #        already += 1 
+            self.results_dict['results'].append(
+                {   'all_unique_moles': len(self.history_moles),
+                    'llm_calls': self.llm_calls,
+                    'Uniqueness':1-self.repeat_num/(self.llm_calls*2+1e-6),
+                    'Validity':1-self.failed_num/(self.llm_calls*2+1e-6),
+                    #'Novelty':1-already/(self.llm_calls*2+1e-6),
+                    'avg_top1':top10[0].total,
+                    'avg_top10':avg_top10,
+                    'avg_top100':avg_top100,
+                    'bbbp_top1':top1_bbbp,
+                    'bbbp_top10':top10_bbbp,
+                    'bbbp_top100':top100_bbbp,
+                    'div':diversity_top100,
+                })
+            print(f'{len(self.history_moles)}/{self.budget} | '
                 f'Uniqueness:{1-self.repeat_num/(self.llm_calls*2+1e-6):.4f} | '
                 f'Validity:{1-self.failed_num/(self.llm_calls*2+1e-6):.4f} | '
                 #f'Novelty:{1-already/(self.llm_calls*2+1e-6):.4f} | '
@@ -267,6 +271,37 @@ class MOO:
                 f'avg_top10 bbbp: {top10_bbbp:.4f} | '
                 f'avg_top100 bbbp: {top100_bbbp:.4f} | '
                 f'div: {diversity_top100:.4f}')
+        else:
+            self.results_dict['results'].append(
+                {   'all_unique_moles': len(self.history_moles),
+                    'llm_calls': self.llm_calls,
+                    'Uniqueness':1-self.repeat_num/(self.llm_calls*2+1e-6),
+                    'Validity':1-self.failed_num/(self.llm_calls*2+1e-6),
+                    #'Novelty':1-already/(self.llm_calls*2+1e-6),
+                    'avg_top1':top10[0].total,
+                    'avg_top10':avg_top10,
+                    'avg_top100':avg_top100,
+                    'div':diversity_top100,})
+            print(f'{len(self.history_moles)}/{self.budget} | '
+                f'Uniqueness:{1-self.repeat_num/(self.llm_calls*2+1e-6):.4f} | '
+                f'Validity:{1-self.failed_num/(self.llm_calls*2+1e-6):.4f} | '
+                #f'Novelty:{1-already/(self.llm_calls*2+1e-6):.4f} | '
+                f'llm_calls: {self.llm_calls} | '
+                f'avg_top1: {top10[0].total:.4f} | '
+                f'avg_top10: {avg_top10:.4f} | '
+                f'avg_top100: {avg_top100:.4f} | '
+                f'div: {diversity_top100:.4f}')
+        
+        json_path = os.path.join(self.config.get('save_dir'),"results",'_'.join(self.property_list) + '_' + self.config.get('save_suffix') + f'_{self.seed}'+'.json')
+        if not os.path.exists(os.path.dirname(json_path)):
+            os.makedirs(os.path.dirname(json_path), exist_ok=True)
+            
+        self.results_dict['params'] = self.config.to_string()
+        self.results_dict['history_experience']  = self.history_experience
+        with open(json_path,'w') as f:
+            json.dump(self.results_dict, f, indent=4)
+        
+        
 
     def update_experience(self):
         prompt,best_moles_prompt,bad_moles_prompt = self.prompt_generator.make_experience_prompt(self.all_mols)
@@ -318,7 +353,7 @@ class MOO:
             self.log()
             if self.config.get('model.experience_prob')>0:
                 self.update_experience()
-            if len(self.all_mols) >= self.budget:
+            if len(self.all_mols) >= self.budget or self.early_stopping:
                 break
             self.num_gen+=1
             
@@ -361,17 +396,32 @@ class MOO:
     def generate_offspring(self, population, offspring_times):
         #for _ in range(offspring_times): # 20 10 crossver+mutation 20 
         parents = [random.sample(population, 2) for i in range(offspring_times)]
-        while True:
-            try:
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    futures = [executor.submit(self.mating, parent_list=parent_list) for parent_list in parents]
-                    results = [future.result() for future in futures]
-                    children, prompts, responses = zip(*results) #[[item,item],[item,item]] # ['who are you value 1', 'who are you value 2'] # ['yes, 'no']
-                    self.llm_calls += len(results)
-                    break
-            except Exception as e:
-                print('retry in 60s, exception ',e)
-                time.sleep(90)
+        
+        if self.config.get("model.name") == "gemini":
+            children,prompts,responses = [],[],[]
+            for parent_list in tqdm(parents):
+                while True:
+                    try:
+                        child,prompt,response = self.mating(parent_list)
+                        children.append(child)
+                        prompts.append(prompt)
+                        responses.append(response)
+                        break
+                    except Exception as e:
+                        print('retry in 30s, exception ',e)
+                        time.sleep(30)  
+        else:
+            while True:
+                try:
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        futures = [executor.submit(self.mating, parent_list=parent_list) for parent_list in parents]
+                        results = [future.result() for future in futures]
+                        children, prompts, responses = zip(*results) #[[item,item],[item,item]] # ['who are you value 1', 'who are you value 2'] # ['yes, 'no']
+                        self.llm_calls += len(results)
+                        break
+                except Exception as e:
+                    print('retry in 60s, exception ',e)
+                    time.sleep(60)
         tmp_offspring = []
         smiles_this_gen = []
         for child_pair in children:

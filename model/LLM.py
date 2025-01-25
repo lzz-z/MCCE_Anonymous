@@ -1,6 +1,7 @@
 import os
-from openai import AzureOpenAI
+from openai import AzureOpenAI,OpenAI
 from azure.identity import AzureCliCredential, ChainedTokenCredential, DefaultAzureCredential, get_bearer_token_provider
+import google.generativeai as genai
 class LLM:
     def __init__(self,model='chatgpt'):
         print(f'using model: {model}')
@@ -11,10 +12,46 @@ class LLM:
     def _init_chat(self,model):
         if model == 'chatgpt':
             return self.gpt_chat
+        elif model == 'llama':
+            return self.llama_chat
+        elif model == 'gemini':
+            return self.gemini_chat
 
     def _init_model(self,model):
         if model == 'chatgpt':
             return self._init_chatgpt()
+        elif model == 'llama':
+            return self._init_llama()
+        elif model == 'gemini':
+            return self._init_gemini()
+
+    def _init_gemini(self):
+        genai.configure(api_key="AIzaSyCnqH8ekkJkr0Z_t6qeDAgRtWs6Gy4AuBk")
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        return model
+    
+    def gemini_chat(self,content):
+        response = self.model.generate_content(content)
+        #print(response.text)
+        return response.text
+
+    def _init_llama(self):
+        client = OpenAI(
+            base_url="http://localhost:8000/v1",
+            api_key="token-abc123",
+        )
+        return client
+    
+    def llama_chat(self,content):
+        completion = self.model.chat.completions.create(
+            model="NousResearch/Meta-Llama-3-8B-Instruct",
+            messages=[
+                {"role": "user", "content": content}
+            ]
+        )
+        return completion.choices[0].message.content
+        
+
 
     def _init_chatgpt(self):
         # Set the necessary variables
