@@ -340,7 +340,7 @@ class MOO:
         init_pops = copy.deepcopy(population)
 
         #offspring_times = self.config.get('optimization.eval_budge') // ngen //2
-        offspring_times = self.pop_size //2
+        offspring_times = self.pop_size //3
         self.num_gen = 0
         #for gen in tqdm(range(ngen)):
         store_path = os.path.join(self.config.get('save_dir'),'mols','_'.join(self.property_list) + '_' + self.config.get('save_suffix') + f'_{self.seed}' +'.pkl')
@@ -396,7 +396,6 @@ class MOO:
     def generate_offspring(self, population, offspring_times):
         #for _ in range(offspring_times): # 20 10 crossver+mutation 20 
         parents = [random.sample(population, 2) for i in range(offspring_times)]
-        
         if self.config.get("model.name") == "gemini":
             children,prompts,responses = [],[],[]
             for parent_list in tqdm(parents):
@@ -406,6 +405,7 @@ class MOO:
                         children.append(child)
                         prompts.append(prompt)
                         responses.append(response)
+                        self.llm_calls += 1
                         break
                     except Exception as e:
                         print('retry in 30s, exception ',e)

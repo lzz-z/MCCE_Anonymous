@@ -28,10 +28,6 @@ class Prompt:
             raise NotImplementedError('not implemented type of operation:',prompt_type)
         if np.random.random() < self.experience_prob and self.experience is not None:
             prompt += self.experience
-            #print('###################################')
-            #print('prompt with experience:\n',prompt)
-        
-            #print('no experience added this time')
         
         return prompt
             
@@ -40,9 +36,9 @@ class Prompt:
         requirement_prompt = self.make_requirement_prompt(self.original_mol,self.requirements,self.property)
         
         history_prompt = self.make_history_prompt(ind_list[:1])
-        instruction_prompt = self.make_instruction_prompt(oper_type='mutation')
+        instruction_prompt = self.make_instruction_prompt(oper_type='mutation') 
         description_prompt = self.make_description_prompt()
-        final_prompt =requirement_prompt + description_prompt +  history_prompt +  instruction_prompt 
+        final_prompt = requirement_prompt + description_prompt + history_prompt + instruction_prompt 
         return final_prompt
     
     def get_exploration_prompt(self,ind_list,history_moles):
@@ -69,7 +65,7 @@ class Prompt:
         instruction_prompt = self.make_instruction_prompt(oper_type='crossover')
         description_prompt = self.make_description_prompt()
         final_prompt = requirement_prompt + description_prompt + history_prompt +  instruction_prompt
-        #final_prompt =requirement_prompt  +  history_prompt +  instruction_prompt 
+        
         return final_prompt
 
     def make_description_prompt(self):
@@ -93,7 +89,7 @@ class Prompt:
     def make_instruction_prompt(self,oper_type='crossover'): # improvement score = point hypervolume 
         # oper_type : ['crossover', 'mutation', 'explore']
         if oper_type=='mutation':
-            prompt = ("Generate 2 new better molecules in SMILES format through mutation, ensuring they are different from all points provided "
+            prompt = ("Generate 3 new better molecules in SMILES format through mutation, ensuring they are different from all points provided "
                       "above and are not dominated by any of the above.  \n"
             "The molecules must be valid. There are some example operations: \n"
             "1. Modify functional groups selectively while preserving the overall structure. \n"
@@ -105,7 +101,7 @@ class Prompt:
             "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form"
             )
         elif oper_type=='crossover':
-            prompt = ("Give me 2 new better molecules that are different from all points above, and not dominated by any of the above. \n"
+            prompt = ("Give me 3 new better molecules that are different from all points above, and not dominated by any of the above. \n"
             "You can do it by applying crossover on the given points and based on your knowledge. The molecule should be valid. \n"
             "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form"
             )

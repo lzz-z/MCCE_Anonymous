@@ -1,11 +1,11 @@
-exper_name: "testing different llm"
+exper_name: "Chatgpt direct propose 5000"
 save_dir: "/home/msrai4srl4s/nian/results/llm"
-save_suffix: "0124_gemini_0820"
+save_suffix: "0124_direct_propose_0820"
 initial_pop: "random1" # best100, worst100, random1 ~ 5
 
 material: False
 model:
-  name: gemini
+  name: chatgpt
   prompt_module: Prompt
   experience_prob: 0.
   crossover_prob: 0.8

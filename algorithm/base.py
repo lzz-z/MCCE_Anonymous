@@ -18,7 +18,7 @@ class Item:
     def cal_sum(self):
         self.total = 0
         for p in self.property_list:
-            if p in ['qed','jnk3','bbbp']:
+            if p in ['qed','jnk3','bbbp1']:
                 self.total += self.property[p]
             elif p == 'sa':
                 self.total += 1- (self.property[p] -1 ) /9

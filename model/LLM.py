@@ -32,7 +32,7 @@ class LLM:
     
     def gemini_chat(self,content):
         response = self.model.generate_content(content)
-        #print(response.text)
+        print(response.text)
         return response.text
 
     def _init_llama(self):
