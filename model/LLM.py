@@ -1,6 +1,14 @@
 import os
 from openai import AzureOpenAI,OpenAI
-from azure.identity import AzureCliCredential, ChainedTokenCredential, DefaultAzureCredential, get_bearer_token_provider
+#from azure.identity import AzureCliCredential, ChainedTokenCredential, DefaultAzureCredential, get_bearer_token_provider
+def AzureCliCredential():
+    pass
+def ChainedTokenCredential():
+    pass
+def DefaultAzureCredential():
+    pass
+def get_bearer_token_provider():
+    pass
 import google.generativeai as genai
 class LLM:
     def __init__(self,model='chatgpt'):
@@ -16,6 +24,8 @@ class LLM:
             return self.llama_chat
         elif model == 'gemini':
             return self.gemini_chat
+        elif model == 'deepseek':
+            return self.deepseek_chat
 
     def _init_model(self,model):
         if model == 'chatgpt':
@@ -24,7 +34,25 @@ class LLM:
             return self._init_llama()
         elif model == 'gemini':
             return self._init_gemini()
+        elif model == 'deepseek':
+            return self._init_deepseek()
 
+    def _init_deepseek(self):
+        client = OpenAI(api_key="sk-59a5fa848a4a47fcbcfde13fd13b2af5", base_url="https://api.deepseek.com")
+        return client
+    
+    def deepseek_chat(self,content):
+        response = self.model.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": "You are a helpful chemist and biologist"},
+                {"role": "user", "content": content},
+            ],
+            stream=False
+        )
+
+        print(response.choices[0].message.content)
+    
     def _init_gemini(self):
         genai.configure(api_key="AIzaSyCnqH8ekkJkr0Z_t6qeDAgRtWs6Gy4AuBk")
         model = genai.GenerativeModel("gemini-1.5-flash")

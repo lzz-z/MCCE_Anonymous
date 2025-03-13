@@ -3,7 +3,7 @@ import json
 url = 'http://cpu1.ms.wyue.site:8000/process'
 import time
 from functools import partial
-from bio_t5.test_bbbp import load_bbbp_model,get_bbbp
+#from bio_t5.test_bbbp import load_bbbp_model,get_bbbp
 import numpy as np
 from tqdm import tqdm
 def get_evaluation(evaluate_metric, smiles):
@@ -45,9 +45,9 @@ class RewardingSystem:
         }
         self.use_tqdm = use_tqdm
         self.chunk_size=chunk_size
-        if 'bbbp' in self.config.get('goals'):
-            tokenizer,model = load_bbbp_model()
-            self.all_rewards['bbbp'] = partial(get_bbbp,tokenizer=tokenizer,model=model)
+        #if 'bbbp' in self.config.get('goals'):
+        #    tokenizer,model = load_bbbp_model()
+        #    self.all_rewards['bbbp'] = partial(get_bbbp,tokenizer=tokenizer,model=model)
     
 
     def register_reward(self, reward_name, reward_function):
@@ -140,5 +140,5 @@ if __name__ == '__main__':
     s = RewardingSystem()
     mols = [['CCH','CCOCCOCC'],['CCOCCOCC','C[C@@H]1CCN(C(=O)CCCc2ccccc2)C[C@@H]1O']]
     ops = ['qed','logp','similarity','donor','sa','reduction_potential','smarts_filter','logs']
-    
+     # or simply s.all_rewards["qed"]("CCH")
     print(s.evaluate_new(ops,mols))

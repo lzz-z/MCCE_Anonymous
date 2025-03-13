@@ -89,7 +89,7 @@ class MOO:
         print('load scaffold smiles')
         return [Item(i,self.property_list) for i in smiles]
         '''
-        with open('/home/msrai4srl4s/nian/MOLLM/data/data_goal5.json','r') as f:
+        with open('D:/Aresearch/MOLLM/MOLLM/data/data_goal5.json','r') as f:
             data = json.load(f)
         data_type = self.config.get('initial_pop')
         print(f'loading {data_type} as initial pop!')
