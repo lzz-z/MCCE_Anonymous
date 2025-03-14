@@ -50,7 +50,6 @@ class LLM:
             ],
             stream=False
         )
-
         return response.choices[0].message.content
     
     def _init_gemini(self):

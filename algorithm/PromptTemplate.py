@@ -98,18 +98,20 @@ class Prompt:
             "4. Introduce ring modifications (e.g., add, remove, or modify aromatic or aliphatic rings) to affect stability or reactivity. \n"
             "5. Alter stereochemistry or isomer configurations to explore stereoisomer advantages. \n"
             "6. Consider property-specific optimizations (e.g., hydrophobicity, solubility, binding affinity) to maintain balance. \n"
-            "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form"
+            "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form. \n"
+            "Remember only output 2 molecules"
             )
         elif oper_type=='crossover':
             prompt = ("Give me 2 new better molecules that are different from all points above, and not dominated by any of the above. \n"
             "You can do it by applying crossover on the given points and based on your knowledge. The molecule should be valid. \n"
-            "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form"
+            "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form. \n"
+            "Remember only output 2 molecules"
             )
         elif oper_type=='explore':
             prompt = ("Confidently propose two novel and better molecules different from the given ones, leveraging your expertise, "
                      #"try not be dominated by any of the above. \n"
                      "The molecule should be valid. \n"
-                     "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form"
+                     "Do not write code. Do not give any explanation. Each output new molecule must start with <mol> and end with </mol> in SIMLES form.\n "
                      )
         else:
             raise NotImplementedError(f'unsupported instruction type: {oper_type}')

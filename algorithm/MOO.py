@@ -64,6 +64,7 @@ class MOO:
         self.history_experience = []
         self.repeat_num = 0
         self.failed_num = 0
+        self.generated_num = 0
         self.llm_calls = 0
         self.patience = 0
         self.old_score = 0
@@ -89,7 +90,7 @@ class MOO:
         print('load scaffold smiles')
         return [Item(i,self.property_list) for i in smiles]
         '''
-        with open('D:/Aresearch/MOLLM/MOLLM/data/data_goal5.json','r') as f:
+        with open('/home/hp/MOLLM/data/data_goal5.json','r') as f:
             data = json.load(f)
         data_type = self.config.get('initial_pop')
         print(f'loading {data_type} as initial pop!')
@@ -248,9 +249,9 @@ class MOO:
             self.results_dict['results'].append(
                 {   'all_unique_moles': len(self.history_moles),
                     'llm_calls': self.llm_calls,
-                    'Uniqueness':1-self.repeat_num/(self.llm_calls*2+1e-6),
-                    'Validity':1-self.failed_num/(self.llm_calls*2+1e-6),
-                    #'Novelty':1-already/(self.llm_calls*2+1e-6),
+                    'Uniqueness':1-self.repeat_num/(self.generated_num+1e-6),
+                    'Validity':1-self.failed_num/(self.generated_num+1e-6),
+                    #'Novelty':1-already/(self.generated_num+1e-6),
                     'avg_top1':top10[0].total,
                     'avg_top10':avg_top10,
                     'avg_top100':avg_top100,
@@ -258,11 +259,12 @@ class MOO:
                     'bbbp_top10':top10_bbbp,
                     'bbbp_top100':top100_bbbp,
                     'div':diversity_top100,
+                    'generated_num':self.generated_num
                 })
-            print(f'{len(self.history_moles)}/{self.budget} | '
-                f'Uniqueness:{1-self.repeat_num/(self.llm_calls*2+1e-6):.4f} | '
-                f'Validity:{1-self.failed_num/(self.llm_calls*2+1e-6):.4f} | '
-                #f'Novelty:{1-already/(self.llm_calls*2+1e-6):.4f} | '
+            print(f'{len(self.history_moles)}/{self.budget} /all generated: {self.generated_num} | '
+                f'Uniqueness:{1-self.repeat_num/(self.generated_num+1e-6):.4f} | '
+                f'Validity:{1-self.failed_num/(self.generated_num+1e-6):.4f} | '
+                #f'Novelty:{1-already/(self.generated_num+1e-6):.4f} | '
                 f'llm_calls: {self.llm_calls} | '
                 f'avg_top1: {top10[0].total:.4f} | '
                 f'avg_top10: {avg_top10:.4f} | '
@@ -275,17 +277,18 @@ class MOO:
             self.results_dict['results'].append(
                 {   'all_unique_moles': len(self.history_moles),
                     'llm_calls': self.llm_calls,
-                    'Uniqueness':1-self.repeat_num/(self.llm_calls*2+1e-6),
-                    'Validity':1-self.failed_num/(self.llm_calls*2+1e-6),
-                    #'Novelty':1-already/(self.llm_calls*2+1e-6),
+                    'Uniqueness':1-self.repeat_num/(self.generated_num+1e-6),
+                    'Validity':1-self.failed_num/(self.generated_num+1e-6),
+                    #'Novelty':1-already/(self.generated_num+1e-6),
                     'avg_top1':top10[0].total,
                     'avg_top10':avg_top10,
                     'avg_top100':avg_top100,
-                    'div':diversity_top100,})
-            print(f'{len(self.history_moles)}/{self.budget} | '
-                f'Uniqueness:{1-self.repeat_num/(self.llm_calls*2+1e-6):.4f} | '
-                f'Validity:{1-self.failed_num/(self.llm_calls*2+1e-6):.4f} | '
-                #f'Novelty:{1-already/(self.llm_calls*2+1e-6):.4f} | '
+                    'div':diversity_top100,
+                    'generated_num':self.generated_num})
+            print(f'{len(self.history_moles)}/{self.budget}/all generated: {self.generated_num} | '
+                f'Uniqueness:{1-self.repeat_num/(self.generated_num+1e-6):.4f} | '
+                f'Validity:{1-self.failed_num/(self.generated_num+1e-6):.4f} | '
+                #f'Novelty:{1-already/(self.generated_num+1e-6):.4f} | '
                 f'llm_calls: {self.llm_calls} | '
                 f'avg_top1: {top10[0].total:.4f} | '
                 f'avg_top10: {avg_top10:.4f} | '
@@ -396,35 +399,33 @@ class MOO:
     def generate_offspring(self, population, offspring_times):
         #for _ in range(offspring_times): # 20 10 crossver+mutation 20 
         parents = [random.sample(population, 2) for i in range(offspring_times)]
-        if self.config.get("model.name") == "gemini":
-            children,prompts,responses = [],[],[]
-            for parent_list in tqdm(parents):
-                while True:
-                    try:
-                        child,prompt,response = self.mating(parent_list)
-                        children.append(child)
-                        prompts.append(prompt)
-                        responses.append(response)
-                        self.llm_calls += 1
-                        break
-                    except Exception as e:
-                        print('retry in 30s, exception ',e)
-                        time.sleep(30)  
-        else:
-            while True:
-                try:
+
+        parallel = True
+        while True:
+            try:
+                if parallel:
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         futures = [executor.submit(self.mating, parent_list=parent_list) for parent_list in parents]
                         results = [future.result() for future in futures]
                         children, prompts, responses = zip(*results) #[[item,item],[item,item]] # ['who are you value 1', 'who are you value 2'] # ['yes, 'no']
                         self.llm_calls += len(results)
                         break
-                except Exception as e:
-                    print('retry in 60s, exception ',e)
-                    time.sleep(60)
+                else:
+                    children,prompts,responses = [],[],[]
+                    for parent_list in tqdm(parents):
+                        child,prompt,response = self.mating(parent_list)
+                        children.append(child)
+                        prompts.append(prompt)
+                        responses.append(response)
+                        self.llm_calls += 1
+                    break
+            except Exception as e:
+                print('retry in 60s, exception ',e)
+                time.sleep(60)
         tmp_offspring = []
         smiles_this_gen = []
         for child_pair in children:
+            self.generated_num += len(child_pair)
             for child in child_pair:
                 if child.value in smiles_this_gen:
                     self.repeat_num += 1
