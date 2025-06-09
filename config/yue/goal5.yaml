@@ -1,11 +1,11 @@
-exper_name: "5.28 not repeated mols and parents use nsga_so_select and only start"
+exper_name: "5.28 not repeated mols and parents use nsga_so_select"
 save_dir: "/home/hp/src/mollm_results/exp"
-save_suffix: "0528_random1_nsga_so_select"
+save_suffix: "0609_random1_nsga_so_select"
 initial_pop: "random1" # best100, worst100, random1 ~ 5
 
 material: False
 model:
-  name: zhongzhuan,gpt-4o-2024-05-13
+  name: zgca,gemini-2.5-flash
   prompt_module: Prompt
   experience_prob: 0.5
   crossover_prob: 0.8

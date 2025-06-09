@@ -184,6 +184,7 @@ class MOO:
         return [Item(smile,self.property_list) for smile in new_smiles],prompt,response
     
     def explore(self, parent_list):
+        # Deprecated
         prompt = self.prompt_generator.get_prompt('explore',parent_list,self.all_mols)
         response = self.llm.chat(prompt)
         new_smiles = extract_smiles_from_string(response)
@@ -257,15 +258,15 @@ class MOO:
             if i.value not in self.history_moles:
                 self.history_moles.append(i.value)
             self.mol_buffer.append([i, len(self.mol_buffer)+1])
-            self.all_mols.append(i)
+            #self.all_mols.append(i)
 
     def log(self,finish=False):
         auc1 = top_auc(self.mol_buffer, 1, finish=finish, freq_log=100, max_oracle_calls=self.budget)
         auc10 = top_auc(self.mol_buffer, 10, finish=finish, freq_log=100, max_oracle_calls=self.budget)
         auc100 = top_auc(self.mol_buffer, 100, finish=finish, freq_log=100, max_oracle_calls=self.budget)
 
-
-        top100 = sorted(self.all_mols, key=lambda item: item.total, reverse=True)[:100]
+        top100 = sorted(self.mol_buffer, key=lambda item: item[0].total, reverse=True)[:100]
+        top100 = [i[0] for i in top100]
         top10 = top100[:10]
         avg_top10 = np.mean([i.total for i in top10])
         avg_top100 = np.mean([i.total for i in top100])
@@ -418,13 +419,13 @@ class MOO:
         if not os.path.exists(os.path.dirname(store_path)):
             os.makedirs(os.path.dirname(store_path), exist_ok=True)
         while True:
-            offspring_times = max(min(self.pop_size //2, (self.budget -len(self.all_mols)) //2),1)
+            offspring_times = max(min(self.pop_size //2, (self.budget -len(self.mol_buffer)) //2),1)
             offspring = self.generate_offspring(population, offspring_times)
             population = self.select_next_population(population, offspring, self.pop_size)
             self.log()
             if self.config.get('model.experience_prob')>0:
                 self.update_experience()
-            if len(self.all_mols) >= self.budget or self.early_stopping:
+            if len(self.mol_buffer) >= self.budget or self.early_stopping:
                 self.log(finish=True)
                 break
             self.num_gen+=1
