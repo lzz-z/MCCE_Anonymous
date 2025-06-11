@@ -21,10 +21,10 @@ class Item:
             if p in ['qed','jnk3','bbbp1']:
                 '''
                  'celecoxib_rediscovery', 'troglitazone_rediscovery','thiothixene_rediscovery',
-              'albuterol_similarity','mestranol_similarity',
-             'isomers_c7h8n2o2','isomers_c9h10n2o2pf2cl','median1','median2', 'osimertinib_mpo',
-             'fexofenadine_mpo','ranolazine_mpo','perindopril_mpo', 'amlodipine_mpo',
-             'sitagliptin_mpo','zaleplon_mpo','valsartan_smarts', 'deco_hop', 'scaffold_hop'
+                'albuterol_similarity','mestranol_similarity',
+                'isomers_c7h8n2o2','isomers_c9h10n2o2pf2cl','median1','median2', 'osimertinib_mpo',
+                'fexofenadine_mpo','ranolazine_mpo','perindopril_mpo', 'amlodipine_mpo',
+                'sitagliptin_mpo','zaleplon_mpo','valsartan_smarts', 'deco_hop', 'scaffold_hop'
                 '''
                 self.total += self.property[p]
             elif p == 'sa':
