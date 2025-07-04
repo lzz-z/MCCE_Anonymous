@@ -17,20 +17,11 @@ from rdkit import Chem
 import json
 from eval import get_evaluation
 import time
-from model.util import nsga2_so_selection
+from model.util import nsga2_so_selection,top_auc,cal_hv
 from algorithm import PromptTemplate
 from eval import judge
 import pygmo as pg
 import pickle
-
-from pymoo.indicators.hv import HV
-from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
-def cal_hv(scores):
-    ref_point = np.array([1.1]*len(scores[0]))
-    hv = HV(ref_point=ref_point)
-    nds = NonDominatedSorting().do(scores,only_non_dominated_front=True)
-    scores = scores[nds]
-    return hv(scores)
 
 def set_seed(seed):
     random.seed(seed)
@@ -53,25 +44,6 @@ def split_list(lst, n):
     """Splits the list lst into n nearly equal parts."""
     k, m = divmod(len(lst), n)
     return [lst[i*k + min(i, m):(i+1)*k + min(i+1, m)] for i in range(n)]
-
-def top_auc(buffer, top_n, finish, freq_log, max_oracle_calls):
-    sum = 0
-    prev = 0
-    called = 0
-    ordered_results = list(sorted(buffer, key=lambda kv: kv[1], reverse=False))
-    for idx in range(freq_log, min(len(buffer), max_oracle_calls), freq_log):
-        temp_result = ordered_results[:idx]
-        temp_result = list(sorted(temp_result, key=lambda kv: kv[0].total, reverse=True))[:top_n]
-        top_n_now = np.mean([item[0].total for item in temp_result])
-        sum += freq_log * (top_n_now + prev) / 2
-        prev = top_n_now
-        called = idx
-    temp_result = list(sorted(ordered_results, key=lambda kv: kv[0].total, reverse=True))[:top_n]
-    top_n_now = np.mean([item[0].total for item in temp_result])
-    sum += (len(buffer) - called) * (top_n_now + prev) / 2
-    if finish and len(buffer) < max_oracle_calls:
-        sum += (max_oracle_calls - len(buffer)) * top_n_now
-    return sum / max_oracle_calls
 
 class MOO:
     def __init__(self, reward_system, llm,property_list,config,seed):
