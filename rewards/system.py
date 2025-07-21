@@ -45,10 +45,6 @@ class RewardingSystem:
         }
         self.use_tqdm = use_tqdm
         self.chunk_size=chunk_size
-        #if 'bbbp' in self.config.get('goals'):
-        #    tokenizer,model = load_bbbp_model()
-        #    self.all_rewards['bbbp'] = partial(get_bbbp,tokenizer=tokenizer,model=model)
-    
 
     def register_reward(self, reward_name, reward_function):
         self.all_rewards[reward_name] = reward_function
@@ -80,26 +76,6 @@ class RewardingSystem:
             r = self.get_reward(op,smiles_list)
             results[op] = r
         return results
-    '''
-    def evaluate(self,ops,smiles_list):
-        while True:
-            try:
-                return get_evaluation(ops,smiles_list)
-            except Exception as e:
-                print(f'encounter exception in get evaluation: {e}, retry in 60s')
-                time.sleep(60)
-    '''
-    def evaluate_items(self, items, qed_requ, logp_requ, donor_requ, donor_num):
-        smiles_list = [[item.value] for item in items]
-        fitnesses, donors, logps, qeds = self._get_evaluation(smiles_list, qed_requ, logp_requ, donor_requ, donor_num)
-
-        for i, item in enumerate(items):
-            item.scores = {'qed': qeds[i], 'logp': logps[i], 'donor': donors[i]}
-            item.fitness = fitnesses[i]
-
-    def _get_evaluation(self, smiles_list, qed_requ, logp_requ, donor_requ, donor_num):
-        # 具体的评估函数与之前的类似
-        pass
     
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem

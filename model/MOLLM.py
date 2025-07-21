@@ -86,8 +86,6 @@ class MOLLM:
                 self.evaluate() # evaluate self.final_pops and self.init_pops
             self.save_to_pkl(self.save_path,i)
 
-
-
     def load_evaluate(self):
         self.load_from_pkl(self.save_path)
         r = self.evaluate()

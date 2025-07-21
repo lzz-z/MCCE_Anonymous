@@ -22,7 +22,7 @@ from algorithm import PromptTemplate
 from eval import judge
 import pygmo as pg
 import pickle
-
+from model.LLM import LLM
 from genetic_gfn.multi_objective.genetic_gfn.run import Genetic_GFN_Optimizer
 from genetic_gfn.multi_objective.run import prepare_optimization_inputs
 
@@ -54,14 +54,13 @@ class MOO:
         self.config = config
         self.seed = seed
         self.llm = llm
+        self.au_llm = LLM(model = self.config.get('model.name2'))
         self.history = HistoryBuffer()
         self.property_list = property_list
-        self.moles_df = None
         self.pop_size = self.config.get('optimization.pop_size')
         self.budget = self.config.get('optimization.eval_budget')
         self.use_au = self.config.get('use_au')
         self.save_dir = os.path.join(self.config.get('save_dir'),self.config.get('model.name'))
-        self.init_mol_dataset()
         self.prompt_module = getattr(PromptTemplate ,self.config.get('model.prompt_module',default='Prompt'))
         self.history_moles = []
         self.mol_buffer = [] # same as all_mols but with orders for computing auc
@@ -86,86 +85,29 @@ class MOO:
         self.record_dict['au_history_smiles'] = []
         self.time_step = 0
 
-    def init_mol_dataset(self):
-        print('Loading ZINC dataset...')
-        data = MolGen(name='ZINC')
-        self.moles_df = data.get_data()
-
     def generate_initial_population(self, mol1, n):
-        '''
-        with open('/home/v-nianran/src/MOLLEO/multi_objective/ini_smiles','r') as f:
-            a = f.readlines()
-        a = [i.replace('\n','') for i in a]
-        return [Item(i,self.property_list) for i in a]
-        '''
-        '''
-        with open('/home/v-nianran/src/MOLLM/data/scaffold_smiles.txt','r') as f:
-            smiles = f.readlines()
-        smiles = [smile.replace('\n','') for smile in smiles]
-        top_n = self.moles_df.sample(100 - len(smiles)).smiles.values.tolist()
-        smiles.extend(top_n)
-        print('load scaffold smiles')
-        return [Item(i,self.property_list) for i in smiles]
-        '''
         with open('/home/hp/src/MOLLM/data/data_goal5.json','r') as f:
             data = json.load(f)
         data_type = self.config.get('initial_pop')
         print(f'loading {data_type} as initial pop!')
         smiles = data[data_type]
         return [Item(i,self.property_list) for i in smiles]
-        
-        filepath = '/home/v-nianran/src/MOLLM/data/zinc250_5goals.pkl'
-        with open(filepath, 'rb') as f:
-            all_mols_zinc = pickle.load(f)
-        print(f"init pop loaded from to {filepath}")
-        # return all_mols_zinc['worst500'][-100:]
-        return all_mols_zinc['best500'][:100]
 
-        top_n = self.moles_df.sample(n - 1).smiles.values.tolist()
-        top_n.append(mol1)
-        return [Item(i,self.property_list) for i in top_n]
-
-        num_blocks = 200
-        combs = [[mol1, mol2] for mol2 in self.moles_df.smiles]
-        combs_blocks = split_list(combs, num_blocks)
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = [executor.submit(get_evaluation, ['similarity'], block) for block in combs_blocks]
-            results = [future.result() for future in futures]
-
-        combined_results = []
-        for result in results:
-            combined_results.extend(result['similarity'])
-
-        self.moles_df['similarity'] = combined_results
-        top_n = self.moles_df.nlargest(n - 1, 'similarity').smiles.values.tolist()
-        top_n.append(mol1)
-        return [Item(i,self.property_list) for i in top_n]
-
-    def mutation(self, parent_list):
-        use_experience = False
-        if len(self.history_moles)>= self.budget // 2:
-            use_experience = True
-            
-        prompt = self.prompt_generator.get_prompt('mutation',parent_list,self.history_moles,use_experience=use_experience)
-        #print('mutation prompt \n\n',prompt)
-        
-        response = self.llm.chat(prompt)
-        #print('response:',response,'\n\n\n')
-        #assert False
+    def mutation(self, parent_list,au):
+        prompt = self.prompt_generator.get_prompt('mutation',parent_list,self.history_moles)
+        if au:
+            response = self.au_llm.chat(prompt)
+        else:
+            response = self.llm.chat(prompt)
         new_smiles = extract_smiles_from_string(response)
         return [Item(smile,self.property_list) for smile in new_smiles],prompt,response
 
-    def crossover(self, parent_list):
-        use_experience = False
-        if len(self.history_moles)>= self.budget // 2:
-            use_experience = True
-        prompt = self.prompt_generator.get_prompt('crossover',parent_list,self.history_moles,use_experience=use_experience)
-      
-        response = self.llm.chat(prompt)
-        #print('response:',response,'\n\n\n')
-        #assert False
-        
+    def crossover(self, parent_list,au):
+        prompt = self.prompt_generator.get_prompt('crossover',parent_list,self.history_moles)
+        if au:
+            response = self.au_llm.chat(prompt)
+        else:
+            response = self.llm.chat(prompt)
         new_smiles = extract_smiles_from_string(response)
         return [Item(smile,self.property_list) for smile in new_smiles],prompt,response
     
@@ -417,21 +359,22 @@ class MOO:
 
         population = self.generate_initial_population(mol1=mol, n=self.pop_size)
         self.store_history_moles(population)
-        self.original_mol = population[-1] # this original_mol does not have property
+        self.original_mol = population[-1]
         self.evaluate_all(population)
         self.original_mol = population[-1] # this original_mol has property
+        self.original_mol = Item('CCH',self.property_list)
         self.log()
         self.prompt_generator = self.prompt_module(self.original_mol,self.requirement_meta,self.property_list,
                                                    self.config.get('model.experience_prob'))
         init_pops = copy.deepcopy(population)
 
         self.num_gen = 0
-        #for gen in tqdm(range(ngen)):
         store_path = os.path.join(self.save_dir,'mols','_'.join(self.property_list) + '_' + self.config.get('save_suffix') + f'_{self.seed}' +'.pkl')
         if not os.path.exists(os.path.dirname(store_path)):
             os.makedirs(os.path.dirname(store_path), exist_ok=True)
         while True:
             offspring_times = max(min(self.pop_size //2, (self.budget -len(self.mol_buffer)) //2),1)
+            offspring_times = 20 ### 
             offspring = self.generate_offspring(population, offspring_times)
             population = self.select_next_population(population, offspring, self.pop_size)
             self.log()
@@ -502,7 +445,7 @@ class MOO:
                     offspring.append(child)
         return offspring
 
-    def mating(self,parent_list):
+    def mating(self,parent_list,au=False):
         crossover_prob = self.config.get('model.crossover_prob')
         mutation_prob = self.config.get('model.mutation_prob')
         #crossover_prob = 0.2 + len(self.history_moles) / self.budget * 0.6
@@ -519,13 +462,13 @@ class MOO:
         function = np.random.choice([self.crossover,self.mutation,self.explore],p=[crossover_prob,
                                                                                    mutation_prob,
                                                                                    explore_prob])
-        smiles,prompt,response = function(parent_list)
-        return smiles,prompt,response
+        items,prompt,response = function(parent_list,au=au)
+        return items,prompt,response
     
     def generate_offspring(self, population, offspring_times):
         parents = [random.sample(population, 2) for i in range(offspring_times)]
         parallel = True
-        '''
+        
         if parallel:
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.mating, parent_list=parent_list) for parent_list in parents]
@@ -546,59 +489,73 @@ class MOO:
         for child_pair in children:
             self.generated_num += len(child_pair)
             tmp_offspring.extend(child_pair)
-        '''
-        ##########
-        prompts = []
-        responses = []
-        children = []
-        if self.use_au:
-            if len(self.mol_buffer) > 0:
-                au_smiles = self.au_model.sample_n_smiles(32,self.mol_buffer)
-                tmp_offspring = [Item(smiles,self.property_list) for smiles in au_smiles]
-                self.generated_num += len(au_smiles)
-        ############
-
+        
         if self.use_au:
             self.record(tmp_offspring,'main')
             self.save_log_mols(tmp_offspring,buffer_type='main')
-            if len(self.mol_buffer) > 0:
-                au_smiles = self.au_model.sample_n_smiles(32,self.mol_buffer)
-                au_smiles = [Item(smiles,self.property_list) for smiles in au_smiles]
-                self.generated_num += len(au_smiles)
-                self.record(au_smiles,'au')
-                self.save_log_mols(au_smiles,buffer_type='au')
-                tmp_offspring.extend(au_smiles)
-
-        offspring = self.sanitize(tmp_offspring,record=True)
+            
+            ### au_smiles = self.au_model.sample_n_smiles(32,self.mol_buffer)
+            au_smiles = self.generate_offspring_au(population,offspring_times=20)
+            ### au_smiles = [Item(smiles,self.property_list) for smiles in au_smiles]
+            self.generated_num += len(au_smiles)
+            self.record(au_smiles,'au')
+            self.save_log_mols(au_smiles,buffer_type='au')
+            tmp_offspring.extend(au_smiles)
+            
         
-        au_smiles = [i[0] for i in self.au_model.experience.memory]
-        repeat_au = len(au_smiles) - len(np.unique(au_smiles))
-        print('repeat in au:', repeat_au)
+        offspring = self.sanitize(tmp_offspring,record=True)
         if len(offspring) == 0:
             return []
 
         self.evaluate_all(offspring)
-        #if self.use_au:
-        #    self.au_model.train_on_smiles([i.value for i in offspring],[i.total for i in offspring])
         self.store_history_moles(offspring)
         self.history.push(prompts,children,responses) 
         return offspring
     
+    def generate_offspring_au(self, population, offspring_times=20):
+        parents = [random.sample(population, 2) for i in range(offspring_times)]
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(self.mating, parent_list=parent_list,au=True) for parent_list in parents]
+            results = [future.result() for future in futures]
+            children, prompts, responses = zip(*results) #[[item,item],[item,item]] # ['who are you value 1', 'who are you value 2'] # ['yes, 'no']
+            self.llm_calls += len(results)
+        tmp_offspring = []
+        for child_pair in children:
+            self.generated_num += len(child_pair)
+            tmp_offspring.extend(child_pair)
+        return tmp_offspring
+
     def save_log_mols(self,mols,buffer_type):
         self.time_step += 1
-        mols = self.sanitize(mols,record=False)
+        #mols = self.sanitize(mols,record=False)
         self.evaluate_all(mols)
         if buffer_type=='main':
             mol_buffer = self.main_mol_buffer
-            self.au_model.train_on_smiles([i.value for i in mols],[i.total for i in mols],loop=4,time_step=self.time_step)
+            ### self.au_model.train_on_smiles([i.value for i in mols],[i.total for i in mols],loop=4,time_step=self.time_step,mol_buffer=mol_buffer)
         elif buffer_type=='au':
             mol_buffer = self.au_mol_buffer
-            self.au_model.train_on_smiles([i.value for i in mols],[i.total for i in mols],loop=4,time_step=self.time_step)
-        for mol in mols:
-            mol_buffer.append([mol, len(mol_buffer)+1])
-        
+            ### self.au_model.train_on_smiles([i.value for i in mols],[i.total for i in mols],loop=4,time_step=self.time_step,mol_buffer=mol_buffer)
+        print('oracle length: ',len(self.mol_buffer))
+
+        self.mol_buffer_store(mol_buffer,mols)
+        # 这里加了重复的 
         self.log_mol_buffer(mol_buffer,buffer_type, finish=False)
 
+    def mol_buffer_store(self,mol_buffer,mols):
+        all_smiles = [i[0].value for i in mol_buffer]
+        for child in mols:
+            mol = Chem.MolFromSmiles(child.value) 
+            if mol is None: # check if valid
+                pass
+            else:
+                child.value = Chem.MolToSmiles(mol,canonical=True)
+                # check if repeated
+                if child.value in all_smiles:
+                    pass
+                else:
+                    all_smiles.append(child.value)
+                    mol_buffer.append([child,len(mol_buffer)+1])
+        return mol_buffer
 
 
     def select_next_population(self, population, offspring, pop_size):

@@ -27,10 +27,7 @@ class LLM:
 
     def proxy_chat(self,content):
         base_url = "http://35.220.164.252:3888/v1/chat/completions"
-        if 'qwen' in self.model_choice:
-            api_key = "sk-yKX48pcOAa8YreSmlQZIeUc5a0iEFIqrgaiewUrwQAUQuFSz" # vip group
-        else:
-            api_key = "sk-StsrRcnWhb5Oajwh9hpvWDW0L9d9e2BgpnaAP4ocFmI9txBB" # default group
+        api_key = "sk-zIBA7uyzMr9cGy6VhCMNAZ5BLqp0MGG3lz7pfhY5qBHGW6CW"
         
         headers = {
             "Content-Type": "application/json",
@@ -42,6 +39,7 @@ class LLM:
             "messages": [
                 {"role": "user", "content": content}
             ],
+            "thinking_config": {"thinking_budget": 0}
             #"temperature": 0.7 # 自行修改温度等参数
         }
         while True:
