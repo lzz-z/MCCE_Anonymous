@@ -41,6 +41,18 @@ This repository contains the source code and scripts for the MOLLM project. The 
   - Including the tutorial of how to modify the main components
 
 ## Getting Started
+To define a new optimization problem, you only need to create the following three files:
+
+1. **`config.yaml`** – This file specifies the algorithm parameters for optimization.  
+   📁 Example: `problem/molecules/goal5_gemini.yaml`
+
+2. **`molecule.yaml`** – This file contains metadata, problem definitions, and textual descriptions.  
+   A full tutorial is provided below.  
+   📁 Example: `problem/molecules/molecule.yaml`
+
+3. **`evaluator.py`** – This Python file defines how the generated solutions are evaluated. 
+    A full tutorial is provided below.  
+   📁 Example: `problem/molecules/evaluator.py`
 
 # 🧬 YAML File Specification for Multi-Objective Molecular Optimization
 
