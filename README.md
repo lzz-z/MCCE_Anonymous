@@ -69,7 +69,7 @@ A standard YAML file should contain the following fields:
 
 ---
 
-## 📝 Example YAML File
+## 📝 Example YAML File (problem/molecules/molecule.yaml)
 
 ```yaml
 description: This task is to propose better molecules according to multiple objectives.
