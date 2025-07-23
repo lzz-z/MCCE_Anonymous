@@ -22,8 +22,7 @@ This repository contains the source code and scripts for the MOLLM project. The 
 └── test.ipynb <br>
 
 ### Running the experiments
-  - `python main.py base.yaml`: You only need to config the YAML file to change the settings and goals, path is relative path under config/
-  - `python main.py base.yaml --resume`: to automatically resume from last saved .pkl file
+  - `python main.py molecules/goal5_gemini.yaml`: You need to define a config file to run, this is an example, you can use it as a template, the path is set to under the problem directory.
 
 ### Description of Files and Directories
 
@@ -42,11 +41,6 @@ This repository contains the source code and scripts for the MOLLM project. The 
   - Including the tutorial of how to modify the main components
 
 ## Getting Started
-
-### Prerequisites
-
-- Python 3.9
-- Requirements are same as those in SFM_framework, please note, loading scigpt will need to put the SFM_framework folder under the main directory. Which is a TODO.
 
 # 🧬 YAML File Specification for Multi-Objective Molecular Optimization
 
