@@ -129,8 +129,8 @@ class RewardingSystem:
 | `transformed_results` | The normalized and minimized version of the original results. Values must be in the `[0, 1]` range.        |
 | `overall_score`       | A scalar value representing the overall quality of the item. Higher is better. This is fully customizable. |
 
-**Then simply use item.assign_results(results) to assign the result to each item**
-**No output needed to be returned**
+* **Then simply use item.assign_results(results) to assign the result to each item**
+* **No output needed to be returned**
 ---
 
 ## 🔄 About `transformed_results`
