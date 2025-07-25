@@ -121,7 +121,7 @@ def sanitize(tmp_offspring):
             child.value = Chem.MolToSmiles(mol,canonical=True)
             # check if repeated
             if child.value in smiles_this_gen:
-                repeat_num +=1
+                repeated_num +=1
             else:
                 smiles_this_gen.append(child.value)
                 offspring.append(child)
