@@ -150,8 +150,9 @@ class MOO:
         
         ### scores = np.array([i.scores for i in top100_mols])
         ### volume = cal_hv(scores) ###
-        top100_mols = [i for i in top100_mols if i.constraints['feasibility']<0.01]
-        scores = np.array([[-i.property['l_delta_b'],i.property['aspect_ratio']] for i in top100_mols])
+        all_mols = [item[0] for item in mol_buffer]
+        all_mols = [i for i in all_mols if i.constraints['feasibility']<0.01]
+        scores = np.array([[-i.property['l_delta_b'],i.property['aspect_ratio']] for i in all_mols])
         volume = cal_fusion_hv(scores)
 
         if buffer_type == "default":
@@ -274,6 +275,11 @@ class MOO:
         start_time = time.time()
         
         #initialization 
+        if self.config.get('inject_per_generation'):
+            module_path = self.config.get('evalutor_path')  # e.g., "molecules"
+            module = importlib.import_module(module_path)
+            _get = getattr(module, "get_database")
+            database = _get(self.config)
         if self.config.get('resume'):
             population,init_pops = self.load_ckpt(store_path)
         else:
@@ -287,6 +293,8 @@ class MOO:
         self.num_gen = 0
         
         while True:
+            if self.config.get('inject_per_generation'):
+                population.extend(random.sample(database,self.config.get('inject_per_generation')))
             offspring_times = max(min(self.pop_size //2, (self.budget -len(self.mol_buffer)) //2),1)
             offspring = self.generate_offspring(population, offspring_times)
             population = self.select_next_population(population, offspring, self.pop_size)

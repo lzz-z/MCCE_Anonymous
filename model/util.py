@@ -150,7 +150,7 @@ def cal_fusion_hv(scores):
     ref_point = np.array([1.0,20.0])
     hv = HV(ref_point=ref_point)
     nds = NonDominatedSorting().do(scores,only_non_dominated_front=True)
-    scores = scores[nds]
+    #scores = scores[nds]
     return hv(scores)
 
 
