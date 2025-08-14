@@ -1,6 +1,6 @@
 exper_name: "constellaration problem 2"
 description: " Single-objective simple-to-build QI stellarator"
-save_dir: "/home/hp/src/mollm_results/fusion"
+save_dir: "/root/src/mollm_results/fusion"
 save_suffix: "0813_simple2build"
 resume: False
 
@@ -14,9 +14,9 @@ model:
   explore_prob: 0. 
 use_au: False  # If True, this will use au model, set to false if you only want to use one LLM
 
-goals: [l_delta_b]
-optimization_direction: [min]
-prompt_info_path: /home/hp/src/MOLLM/problem/simple2build/prompt_info.yaml   
+goals: [l_delta_b,feasibility]
+optimization_direction: [max,min]
+prompt_info_path: /root/src/MOLLM/problem/simple2build/prompt_info.yaml 
 ### Important ###
 evalutor_path: problem.simple2build.evaluator
 
@@ -25,7 +25,7 @@ optimization:
   eval_budget: 5000
 
 early_stopping: False
-inject_per_generation: 5
+inject_per_generation: 8
 
 
 

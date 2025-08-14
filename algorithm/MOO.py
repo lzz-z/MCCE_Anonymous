@@ -304,9 +304,9 @@ class MOO:
                 population.extend(random.sample(database,self.config.get('inject_per_generation')))
             offspring_times = max(min(self.pop_size //2, (self.budget -len(self.mol_buffer)) //2),1)
             offspring = self.generate_offspring(population, offspring_times)
-            population = self.select_next_population(population, offspring, self.pop_size)
+            population = self.select_next_population(self.pop_size)
             self.log_results()
-            if self.config.get('model.experience_prob')>0:
+            if self.config.get('model.experience_prob')>0 and len(self.mol_buffer)>100:
                 self.update_experience()
             if len(self.mol_buffer) >= self.budget or self.early_stopping:
                 self.log_results(finish=True)
@@ -522,12 +522,13 @@ class MOO:
         return mol_buffer
 
 
-    def select_next_population(self, population, offspring, pop_size):
-        combined_population = offspring + population 
+    def select_next_population(self, pop_size):
+        #combined_population = offspring + population 
+        whole_population = [i[0] for i in self.mol_buffer]
         if len(self.property_list)>1:
-            return nsga2_so_selection(combined_population, pop_size)
+            return nsga2_so_selection(whole_population, pop_size)
         else:
-            return so_selection(combined_population,pop_size)
+            return so_selection(whole_population,pop_size)
 
     def generate_offspring_au(self, population, offspring_times=20):
         parents = [random.sample(population, 2) for i in range(offspring_times)]
@@ -552,7 +553,7 @@ class MOO:
         with open(json_path,'rb') as f:
             result_ckpt = json.load(f)
         self.mol_buffer = ckpt['all_mols']
-        population = self.select_next_population([i[0] for i in self.mol_buffer], [], self.pop_size) 
+        population = self.select_next_population(self.pop_size) 
         init_pops = ckpt['init_pops']
         self.history = ckpt['history']
         

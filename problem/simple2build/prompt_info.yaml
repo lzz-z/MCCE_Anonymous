@@ -63,7 +63,8 @@ other_requirements: 'constraints are:
   edge magnetic mirror ratio <= 0.2,
   aspect ratio <= 10
   max elongation <= 5
-  violation threshold is 0.01, so only if feasibility value <=0.01 it will give a total score larger than 0.
+  violation threshold is 0.01, so only if feasibility value <=0.01 it will give a total score larger than 0, 
+  meaning that if all items have 0 total score, priority should be given to improving feasibility.
   '
 
 # The following part are the description of the objectives involved. It is simply consisted of a sentence describe the objective and [optional] normally 
@@ -71,3 +72,6 @@ other_requirements: 'constraints are:
 l_delta_b: The minimum normalized magnetic gradient scale length quantifies how rapidly the magnetic field strength 
   changes near the plasma boundary, normalized by a geometric factor (typically a / NFP, where a is the minor radius and NFP 
   is the number of field periods).
+feasibility: The normalized constraint violation is computed as the constraint violation (actual value minus target) divided 
+  by the absolute target value, and the feasibility score is the maximum of these normalized violations (with satisfied 
+  constraints treated as zero); a design is considered feasible if this score is ≤ 0.01. 

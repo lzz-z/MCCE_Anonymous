@@ -68,7 +68,7 @@ def crowding_distance_assignment(front, population):
         front.sort(key=lambda x: population[x].scores[m])
         distances[0] = distances[-1] = float('inf')
         for i in range(1, len(front) - 1):
-            distances[i] += (population[front[i + 1]].scores[m] - population[front[i - 1]].scores[m]) / (max(population[k].scores[m] for k in front) - min(population[k].scores[m] for k in front))
+            distances[i] += (population[front[i + 1]].scores[m] - population[front[i - 1]].scores[m]) / (max(population[k].scores[m] for k in front) - min(population[k].scores[m] for k in front)+1e-5)
 
     return distances
 

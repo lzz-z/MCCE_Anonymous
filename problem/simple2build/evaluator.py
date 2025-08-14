@@ -41,16 +41,14 @@ def _evaluate_one_static(item):
         assert r_cos.shape == (5, 9) and z_sin.shape == (5, 9)
 
         result, metrics = evaluate_surface(r_cos, z_sin)
-        if result.feasibility <= 0.01:
-            overall_score = 1-result.score
-        else:
-            overall_score = 0
         results_dict = {
             'original_results': {
-                'l_delta_b': result.score,
+                'l_delta_b': metrics.minimum_normalized_magnetic_gradient_scale_length,
+                'feasibility':result.feasibility,
             },
             'transformed_results': {
-                'l_delta_b': result.score,
+                'l_delta_b': - result.score,
+                'feasibility':result.feasibility,
             },
             'constraint_results': {
                 'edge_rotational_transform_over_n_field_periods':metrics.edge_rotational_transform_over_n_field_periods,
@@ -63,9 +61,10 @@ def _evaluate_one_static(item):
                 'vacuum_well':metrics.vacuum_well,
                 'flux_compression_in_regions_of_bad_curvature':metrics.flux_compression_in_regions_of_bad_curvature
             },
-            'overall_score': overall_score
+            'overall_score': result.score
         }
-        print(f'score: {overall_score}, feasibility: {result.feasibility}')
+        #print(results_dict)
+        print(f'score: {result.score}, feasibility: {result.feasibility}')
         item.assign_results(results_dict)
         item.value = convert2str(r_cos, z_sin)
         return item
@@ -84,7 +83,7 @@ class RewardingSystem:
         valid_items = []
         log_dict = {}
         finished = 0
-        cpu_count = 3
+        cpu_count = 10
         print(f'start evaluating')
         with ProcessPoolExecutor(max_workers=cpu_count) as executor:
             futures = {executor.submit(_evaluate_one_static, item): item for item in items}
@@ -105,14 +104,17 @@ class RewardingSystem:
         return valid_items, log_dict
 
 def generate_initial_population(config,seed=42,n_sample=100):
-    with open('/home/hp/src/MOLLM/problem/simple2build/init_items.pkl','rb') as f:
+    with open('/root/src/MOLLM/problem/simple2build/init_items.pkl','rb') as f:
         items = pickle.load(f)
     reward_system = RewardingSystem(config)
+    for i in range(len(items)):
+        items[i].property_list = ['l_delta_b', 'feasibility']
     items, _ = reward_system.evaluate(items)
     return items
 
 
 def get_database(config,seed=42,n_sample=100):
+    '''
     ds = datasets.load_dataset(
     "proxima-fusion/constellaration",
     split="train",
@@ -157,15 +159,19 @@ def get_database(config,seed=42,n_sample=100):
         violations.append(problem._normalized_constraint_violations(metrics))
     df['feasibility'] = feasibilities
     df = df.sort_values('feasibility',ascending=True).reset_index(drop=True)
+    '''
+    df = pd.read_csv('/root/src/MOLLM/problem/simple2build/simple2build_databse.csv')
     df= df[:n_sample]
     items = []
     for _,row in df.iterrows():
         results_dict = {
             'original_results': {
-                'l_delta_b': row['metrics.minimum_normalized_magnetic_gradient_scale_length']/20,
+                'l_delta_b': row['metrics.minimum_normalized_magnetic_gradient_scale_length'],
+                'feasibility':row['feasibility'],
             },
             'transformed_results': {
-                'l_delta_b': row['metrics.minimum_normalized_magnetic_gradient_scale_length']/20,
+                'l_delta_b': -row['metrics.minimum_normalized_magnetic_gradient_scale_length']/20,
+                'feasibility':row['feasibility'],
             },
             'constraint_results': {
                 'edge_rotational_transform_over_n_field_periods':row['metrics.edge_rotational_transform_over_n_field_periods'],
@@ -180,13 +186,10 @@ def get_database(config,seed=42,n_sample=100):
             },
             
         }
-        if row['feasibility'] <= 0.01:
-            results_dict['overall_score'] =  1-row['metrics.minimum_normalized_magnetic_gradient_scale_length']
-        else:
-            results_dict['overall_score'] = 0
+        results_dict['overall_score'] = 0
         r_cos = np.stack(row['boundary.r_cos'])
         z_sin = np.stack(row['boundary.z_sin'])
-        item = Item(convert2str(r_cos,z_sin),['l_delta_b'])
+        item = Item(convert2str(r_cos,z_sin),['l_delta_b','feasibility'])
         item.assign_results(results_dict)
         items.append(item)
     #with open('/home/hp/src/MOLLM/problem/fusion/best_items.pkl', 'rb') as f:
