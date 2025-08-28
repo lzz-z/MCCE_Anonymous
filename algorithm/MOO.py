@@ -71,6 +71,7 @@ class MOO:
         self.record_dict['main_history_smiles'] = []
         self.record_dict['au_history_smiles'] = []
         self.time_step = 0
+        self.start_time = time.time()
 
     def generate_initial_population(self, n):
         module_path = self.config.get('evalutor_path')  # e.g., "molecules"
@@ -171,7 +172,7 @@ class MOO:
         # Handle early stopping for default logging only
         if buffer_type == "default":
             new_score = avg_top100
-            if new_score - self.old_score < 1e-3 and self.old_score>0.05: # 0.947810
+            if new_score - self.old_score < 1e-4 and self.old_score>0.05:
                 self.patience += 1
                 if self.config.get('early_stopping',default=True) and self.patience >= 6:
                     print('convergence criteria met, abort ...... ')
@@ -211,7 +212,10 @@ class MOO:
             'top100_auc': auc100,
             'hypervolume': volume,
             ###'div': diversity_top100,
-            'generated_num': self.generated_num
+            'input_tokens': self.llm.input_tokens,
+            'output_tokens': self.llm.output_tokens,
+            'generated_num': self.generated_num,
+            'running_time[s]': time.time()-self.start_time
         })
 
         # Only include config and history in default log
@@ -237,7 +241,10 @@ class MOO:
             f'top10_auc: {auc10:.4f} | '
             f'top100_auc: {auc100:.4f} | '
             f'hv: {volume:.4f} | '
-            f'unique top 100:{len(np.unique([i.value for i in top100_mols]))}'
+            f'unique top 100:{len(np.unique([i.value for i in top100_mols]))} | '
+            f'input_tokens: {self.llm.input_tokens} | '
+            f'output_tokens: {self.llm.output_tokens} | '
+            f'running_time: {(time.time()-self.start_time)/3600:.3f} h'
             ###f'div: {diversity_top100:.4f}'
             )
 

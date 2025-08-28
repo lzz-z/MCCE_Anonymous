@@ -24,6 +24,8 @@ class LLM:
             self.model = self._init_model(model)
             self.chat = self._init_chat(model)
         print('model choice:',self.model_choice)
+        self.input_tokens = 0
+        self.output_tokens = 0
 
     def proxy_chat(self,content):
         base_url = "http://35.220.164.252:3888/v1/chat/completions"
@@ -50,14 +52,17 @@ class LLM:
                 if response.status_code != 200:
                     print(f"Request failed with status code {response.status_code}")
                     print("Response:", response.text)
-                    print('retry in 60s ')
-                    time.sleep(60)
+                    print('retry in 20s ')
+                    time.sleep(20)
                 else:
                     break
             except Exception as e:
-                print(f'Exception {e},retry in 60s')
-                time.sleep(60)
-        return response.json()['choices'][0]['message']['content']
+                print(f'Exception {e},retry in 20s')
+                time.sleep(20)
+        response = response.json()
+        self.input_tokens += response['usage']['prompt_tokens']
+        self.output_tokens += response['usage']['completion_tokens']
+        return response['choices'][0]['message']['content']
 
     def _init_chat(self,model):
         if model == 'chatgpt':

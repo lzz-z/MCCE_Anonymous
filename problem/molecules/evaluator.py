@@ -19,7 +19,7 @@ def get_evaluation(evaluate_metric, smiles):
 from tdc import Oracle, Evaluator
 
 def generate_initial_population(config,seed):
-    with open('/home/hp/src/MOLLM/data/data_goal5.json','r') as f:
+    with open('/root/src/MOLLM/data/data_goal5.json','r') as f:
         data = json.load(f)
     data_type = f'random{seed-41}' # initial_pop: "random1" # best100, worst100, random1 ~ 5
     print(f'loading {data_type} as initial pop!')
