@@ -22,7 +22,7 @@ def auto_submit(problem_id: int, code: str, wait_interval: int = 10, timeout: in
              score: str or None
              log: str
     """
-
+    new_times = []
     for attempt in range(1, max_retries + 1):
         # Step 1. 提交代码
         submit_url = f"{BASE_URL}/answers/submit"
@@ -80,11 +80,17 @@ def auto_submit(problem_id: int, code: str, wait_interval: int = 10, timeout: in
                 for item in res["data"]:
                     if item["result_id"] == result_id:
                         score = item.get("score")
+                        times = item.get("time")
+                        keep_names = ['name','avg','best']
+                        for t in times:
+                            new_times.append({
+                                key:t[key] for key in keep_names
+                            })
                         break
 
             # Step 4. 判断结果
             if status == "success":
-                return "success", score, log
+                return "success", score, log, new_times
 
             if status == "failed":
                 if "no such file or directory" in log:  # 平台出错
@@ -93,11 +99,11 @@ def auto_submit(problem_id: int, code: str, wait_interval: int = 10, timeout: in
                         time.sleep(30)
                         continue
                     else:
-                        return "platform_error", 0, log
+                        return "platform_error", 0, log, new_times
                 else:
-                    return "failed", score, log
+                    return "failed", score, log, new_times
     # 如果所有尝试都失败
-    return "platform_error", 0, log
+    return "platform_error", 0, log, new_times
 
 class RewardingSystem:
     def __init__(self, config=None):
@@ -116,7 +122,7 @@ class RewardingSystem:
         invalid_num = 0
         for i,item in enumerate(items):
             code = item.value
-            status,score,log = auto_submit(problem_id=self.problem_id,code=code)
+            status,score,log,new_times = auto_submit(problem_id=self.problem_id,code=code)
             score = float(score)
             if status != 'success':
                 invalid_num += 1
@@ -129,7 +135,8 @@ class RewardingSystem:
                 },
                 'constraint_results': {
                     'status': status,
-                    'debug_log': log 
+                    'debug_log': log,
+                    'time_comparison': new_times,
                 },
                 'overall_score': score # only this one cause passing mmseqs is enough
             }
@@ -156,8 +163,8 @@ def generate_initial_population(config, seed=42, n_sample=6):
         flags=re.S
     )
     matches = pattern.findall(text)
-    indices = random.choices([i for i in range(len(matches))], k=n_sample-len(matches))
-    indices.extend([i for i in range(len(matches))])
+    
+    indices = [i for i in range(len(matches))]
     # 每个元素是 (candidate, score, log)
     items = []
     i = 0

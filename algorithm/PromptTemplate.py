@@ -5,6 +5,7 @@ from algorithm.base import Item
 import pygmo as pg
 from typing import List, Dict, Optional, Union
 import json
+import random
 import yaml
 
 
@@ -136,7 +137,16 @@ class Prompt:
     def make_experience_prompt(self, all_items: List[tuple]) -> tuple[str, str, str]:
         all_items = [i[0] for i in all_items]
         experience_type = np.random.choice(['best_f', 'hvc', 'pareto'], p=[0.5, 0., 0.5])
-        worst10 = sorted(all_items, key=lambda x: x.total)[self.exp_times * 10:(self.exp_times + 1) * 10]
+        sorted_items = sorted(all_items, key=lambda x: x.total)
+
+        # 取后半部分
+        half = len(sorted_items) // 2
+        back_half = sorted_items[half:]
+        if half<10:
+            worst10 = random.choices(back_half, k=10)
+        else:
+            worst10 = random.sample(back_half, k=10)
+
 
         if experience_type == 'best_f':
             top100 = sorted(all_items, key=lambda x: x.total, reverse=True)[:100]

@@ -444,7 +444,7 @@ class MOO:
         parents = [random.sample(population, 2) for i in range(offspring_times)]
         parallel = True
         if parallel:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
+            with concurrent.futures.ProcessPoolExecutor() as executor:
                 futures = [executor.submit(self.mating, parent_list=parent_list) for parent_list in parents]
                 #results = [future.result() for future in futures]
                 #children, prompts, responses = zip(*results) #[[item,item],[item,item]] # ['who are you value 1', 'who are you value 2'] # ['yes, 'no']
@@ -452,7 +452,7 @@ class MOO:
                 results = []
                 for future in futures:
                     try:
-                        result = future.result(timeout=120)  # 最多等待 120 秒
+                        result = future.result(timeout=900)  # 最多等待 120 秒
                         results.append(result)
                     except concurrent.futures.TimeoutError:
                         print("Warning: A task timed out after 180 seconds.")

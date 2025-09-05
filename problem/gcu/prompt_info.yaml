@@ -8,9 +8,9 @@ mutation_instruction: 'Example operations include:
 crossover_instruction: 'Example operations include: 
   结合你觉得这两个代码中做的好的部分,进一步优化他的速度'
 other_requirements: 'status 是success， 每个testcase都是passed才是完全成功
-  其他情况的话每个代码的debug的信息都放在了debug_log里面供你参考了，
+  其他情况的话每个代码的debug的信息都放在了debug_log里面供你参考了，time_comparison 里面是当前代码的测试case和最快运行时间的一个比较
   分数越接近100分越好，如果parent candidate 里面的代码有误，可以优先修好他再优化
-  在保证代码正确的前提下，我们的优化目标就是让算子越快越好，不用考虑内存占用
+  在保证代码正确的前提下，根据你的知识和推理，我们的优化目标就是让算子越快越好，不用考虑内存占用
   线程可以直接选择12（因为gcu210支持12线程）'
 gcu_var: "GCU Var
   本题希望选手们完成 GCU 上方差计算。详情参考 torch.var。本题中，input为1维数组，其余参数均为torch上的默认值。

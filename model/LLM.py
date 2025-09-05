@@ -59,12 +59,16 @@ class LLM:
         while True:
             try:
                 response = requests.post(base_url, headers=headers, json=data)
-
+                response.raise_for_status()  
                 if response.status_code != 200:
                     print(f"Request failed with status code {response.status_code}")
-                    print("Response:", response.text)
-                    print('retry in 20s ')
-                    time.sleep(20)
+                    print("Response headers:", response.headers)
+                    try:
+                        # 尝试解析 JSON 返回
+                        print("Response JSON:", response.json())
+                    except Exception:
+                        # 如果不是 JSON，就直接打印文本
+                        print("Response text:", response.text)
                 else:
                     break
             except Exception as e:
