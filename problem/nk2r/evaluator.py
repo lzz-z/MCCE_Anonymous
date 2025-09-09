@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import minimize
 import random
 import time
-from .testapi_far import RemoteAPITester
+from .testapi_far import MultiRemoteAPITester
 AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY"
 
 def random_peptide(min_len=5, max_len=40):
@@ -145,42 +145,93 @@ def cal_iptm(sequence):
     return iptm
 
 class RewardingSystem:
-    def __init__(self,config=None):
+    def __init__(self, config=None):
         self.config = config
-    
-    def evaluate(self,items):
-        for i,item in enumerate(items):
+        # 初始化 tester（只初始化一次即可）
+        self.tester = MultiRemoteAPITester(
+            api_host="192.168.8.169",  # 你的API服务器
+            api_port=8000,
+            timeout=30,
+            poll_interval=15
+        )
+
+    def evaluate(self, items):
+        # 先做预处理
+        peptides = []
+        for i, item in enumerate(items):
             peptide = sanitize_sequence(item.value)
-            
             simiarity = cal_similarity(peptide)
             pass_mmseqs = check_similarity(peptide)
-            pass_len = len(peptide) <=40
-            if pass_mmseqs and pass_len:
-                iptm = cal_iptm(peptide)
-                time.sleep(30)
-            else:
-                iptm = 0
+            pass_len = len(peptide) <= 40
+
+            # 保存中间信息，等下批量跑 iptm
+            peptides.append({
+                "index": i,
+                "item": item,
+                "peptide": peptide,
+                "similarity": simiarity,
+                "pass_mmseqs": pass_mmseqs,
+                "pass_len": pass_len,
+                "iptm": 0.0  # 默认 0，后面更新
+            })
+
+        # === 分批并行调用 (4个一组) ===
+        batch_size = 4
+        for b in range(0, len(peptides), batch_size):
+            batch = peptides[b:b+batch_size]
+
+            # 只跑符合条件的
+            seqs_to_run = [p["peptide"] for p in batch if p["pass_mmseqs"] and p["pass_len"]]
+            if not seqs_to_run:
+                continue
+
+            ok, results = self.tester.run_parallel_test(
+                sequences=seqs_to_run,
+                names=None,
+                max_wait_time=1800
+            )
+
+            # 取出结果
+            if ok:
+                for seq, info in results.items():
+                    iptm = 0.0
+                    try:
+                        iptm = info["status_info"]["result"]["summary_confidences"]["iptm"]
+                    except Exception:
+                        pass
+                    # 找到对应的 peptide 更新 iptm
+                    for p in batch:
+                        if p["peptide"] == seq:
+                            p["iptm"] = iptm
+
+            # 每批之间稍微休眠，避免过载
+            time.sleep(5)
+
+        # === 写回 items ===
+        for p in peptides:
             results_dict = {
                 'original_results': {
-                    'iptm': iptm,
-                    'similarity': simiarity
+                    'iptm': p["iptm"],
+                    'similarity': p["similarity"]
                 },
                 'transformed_results': {
-                    'iptm': 1-iptm,
-                    'similarity': simiarity
+                    'iptm': 1 - p["iptm"],
+                    'similarity': p["similarity"]
                 },
                 'constraint_results': {
-                    'pass_mmseqs': bool(pass_mmseqs),
-                    'similarity_from_biopython':simiarity,
-                    'length':len(peptide)
+                    'pass_mmseqs': bool(p["pass_mmseqs"]),
+                    'similarity_from_biopython': p["similarity"],
+                    'length': len(p["peptide"])
                 },
-                'overall_score': iptm # only this one cause passing mmseqs is enough
+                'overall_score': p["iptm"] if (p["pass_mmseqs"] and p["pass_len"]) else 0.0
             }
-            print(f' {i}th item {item.value} result:',results_dict)
-            item.assign_results(results_dict)
-            item.value = peptide
-        log_dict = {}
-        log_dict['invalid_num'] = 0
-        log_dict['repeated_num'] = 0 # default is 0. If you remove the repeated items, then fill this attribute with the amount.
-        return items,log_dict
+            print(f'{p["index"]}th item {p["peptide"]} result:', results_dict)
 
+            p["item"].assign_results(results_dict)
+            p["item"].value = p["peptide"]
+
+        log_dict = {
+            'invalid_num': 0,
+            'repeated_num': 0
+        }
+        return items, log_dict

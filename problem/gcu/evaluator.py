@@ -57,7 +57,7 @@ def auto_submit(problem_id: int, code: str, wait_interval: int = 10, timeout: in
                 if jenkins_log:
                     log = jenkins_log
 
-                build_status = res["data"]["build"]["status"]
+                #build_status = res["data"]["build"]["status"]
                 test_status = res["data"]["test"]["status"]
 
                 if test_status in ("success", "failed"):
