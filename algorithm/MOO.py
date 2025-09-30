@@ -89,8 +89,8 @@ class MOO:
             self.store_history_moles(strings)
             return strings
     def llm_init(self):
-        a = 'start_time,end_time,combination_id\n2023-11-01T00:00:00,2023-11-01T08:00:00,1#&3#\n2023-11-01T08:00:00,2023-11-01T16:56:55.633423,3#\n'
-        generated = [self.item_factory.create(a)]
+        #a = 'start_time,end_time,combination_id\n2023-11-01T00:00:00,2023-11-01T08:00:00,1#&3#\n2023-11-01T08:00:00,2023-11-01T16:56:55.633423,3#\n'
+        #generated = [self.item_factory.create(a)]
         
         
         prompt = self.prompt_generator.get_prompt('empty',None,None)
