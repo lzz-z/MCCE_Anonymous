@@ -88,9 +88,10 @@ class MOO:
         else:
             self.store_history_moles(strings)
             return strings
-    def llm_init(self):
+    def llm_init(self,generated):
         #a = 'start_time,end_time,combination_id\n2023-11-01T00:00:00,2023-11-01T08:00:00,1#&3#\n2023-11-01T08:00:00,2023-11-01T16:56:55.633423,3#\n'
         #generated = [self.item_factory.create(a)]
+        
         
         
         prompt = self.prompt_generator.get_prompt('empty',None,None)
@@ -330,8 +331,8 @@ class MOO:
             population,init_pops = self.load_ckpt(store_path)
         else:
             population = self.generate_initial_population(n=self.pop_size)
-            if len(population)==0:
-                population = self.llm_init()
+            if len(population)<self.pop_size:
+                population = self.llm_init(population)
             if population[0].total is None:
                 population = self.evaluate(population) # including removing invalid and repeated candidates
             self.log_results()
