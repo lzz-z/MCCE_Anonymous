@@ -97,13 +97,16 @@ def generate_initial_population(config, seed=42):
     return strings
 
 
+from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
+import time, os
+
 class RewardingSystem:
     def __init__(self, config):
         self.df = pd.read_csv('/root/nian/MOLLM/problem/shihua_mol/qm9.csv')
         self.config = config
         self.qm9_smiles = self.df.SMILES.values.tolist()
 
-    def _evaluate_single(self, smi, constraint):
+    def _evaluate_single(self, smi):
         try:
             mol = Chem.MolFromSmiles(smi)
             if mol is None or not check_validity(smi):
@@ -142,14 +145,14 @@ class RewardingSystem:
         except Exception as e:
             return smi, None, str(e)
 
-
-    def evaluate(self, items,mol_buffer):
+    def evaluate(self, items, mol_buffer, timeout_sec=240):
         invalid_num = 0
         repeated_num = 0
         evaluated = []
         smiles_seen = set()
         new_items = []
         history_moles = [i.value for i, _ in mol_buffer]
+
         # === Step 1: 去重与有效性检查 ===
         for i in items:
             mol = Chem.MolFromSmiles(i.value)
@@ -165,22 +168,34 @@ class RewardingSystem:
 
         items = new_items
 
-        # === Step 2: 多线程并行计算 ===
+        # === Step 2: 多线程并行计算，单任务最大等待 5 分钟 ===
         max_workers = min(5, os.cpu_count())
         start_time = time.time()
+
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            futures = {executor.submit(self._evaluate_single, item.value, constraint): item for item in items}
+            futures = {executor.submit(self._evaluate_single, item.value): item for item in items}
+
             for future in as_completed(futures):
-                smi, result, error = future.result()
                 item = futures[future]
-                if result:
-                    item.assign_results(result)  # 主线程更新
-                    evaluated.append(item)
-                else:
+                try:
+                    smi, result, error = future.result(timeout=timeout_sec)
+                    if result:
+                        item.assign_results(result)
+                        evaluated.append(item)
+                    else:
+                        invalid_num += 1
+                        print(f"⚠️ {smi}: {error}")
+
+                except TimeoutError:
                     invalid_num += 1
-                    print(f"⚠️ {smi}: {error}")
+                    print(f"⏰ Timeout (> {timeout_sec}s): {item.value} 被跳过")
+
+                except Exception as e:
+                    invalid_num += 1
+                    print(f"⚠️ {item.value}: {str(e)}")
+
         end_time = time.time()
-        print(f"Time taken: {end_time - start_time} seconds")
+        print(f"Time taken: {end_time - start_time:.2f} seconds")
 
         log_dict = {
             "invalid_num": invalid_num,
@@ -188,3 +203,4 @@ class RewardingSystem:
         }
 
         return evaluated, log_dict
+
