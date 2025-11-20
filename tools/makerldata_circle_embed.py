@@ -10,17 +10,14 @@ import time
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-# 确保可以 import 到 MCCE 的模块（algorithm, model 等），
-# 这样在 unpickle 时不会因为找不到 algorithm 而报错。
-MCCE_ROOT = "/home/lzz/MCCE"
+MCCE_ROOT = "<TO_BE_FILLED>"
 if MCCE_ROOT not in sys.path:
     sys.path.append(MCCE_ROOT)
 
-# 全局缓存（进程内生效）
 _embedding_cache = {}
 
 try:
-    from algorithm.base import Item  # noqa: F401
+    from algorithm.base import Item
 except (ImportError, ModuleNotFoundError):
     class Item:
         def __init__(self, value, property_dict):
@@ -30,16 +27,11 @@ except (ImportError, ModuleNotFoundError):
 
 
 def _parse_circle_solution(sol_str):
-    """
-    将 circle_packing 的解字符串解析为 (centers, radii)，并展平成向量作为 embedding。
-    这里不依赖任何外部模型，仅使用几何参数作为“embedding”。
-    """
     if not isinstance(sol_str, str) or "centers" not in sol_str or "radii" not in sol_str:
         return None
 
     local_vars = {}
     try:
-        # 执行由 MCCE 生成的 centers/radii 代码字符串
         exec(sol_str, {"np": np}, local_vars)
         centers = local_vars.get("centers", None)
         radii = local_vars.get("radii", None)
@@ -47,23 +39,18 @@ def _parse_circle_solution(sol_str):
             return None
         centers = np.asarray(centers, dtype=float)
         radii = np.asarray(radii, dtype=float)
-        # 展平并拼接为一个向量
         emb = np.concatenate([centers.flatten(), radii.flatten()]).astype(np.float32)
-        # L2 归一化，避免尺度影响
         norm = np.linalg.norm(emb)
         if norm == 0 or not np.isfinite(norm):
             return None
         emb = emb / norm
         return emb
     except Exception as e:
-        print(f"[WARN] 解析 circle_packing 解失败，返回 None: {e}")
+        print(f"[WARN] Failed to parse circle_packing solution, returning None: {e}")
         return None
 
 
 def get_embedding(sol_str):
-    """
-    获取 circle_packing 解的 embedding（带简单缓存）。
-    """
     global _embedding_cache
     if sol_str in _embedding_cache:
         return _embedding_cache[sol_str]
@@ -73,29 +60,19 @@ def get_embedding(sol_str):
 
 
 def calculate_similarity(sol1, sol2):
-    """
-    基于 embedding 的相似度（余弦相似度）。
-    sol1/sol2 为 circle_packing 的解字符串（包含 centers/radii）。
-    """
     emb1 = get_embedding(sol1)
     emb2 = get_embedding(sol2)
     if emb1 is None or emb2 is None:
         return 0.0
-    # 由于已做过 L2 归一化，内积即为余弦相似度
     sim = float(np.dot(emb1, emb2))
-    # 数值安全：限制在 [-1, 1] 区间
     if not np.isfinite(sim):
         return 0.0
     sim = max(min(sim, 1.0), -1.0)
-    # 将 [-1,1] 映射到 [0,1]，避免负值
     return (sim + 1.0) / 2.0
 
 
 def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extended_pool_solutions,
                        low_score_pool_solutions, solution_to_total):
-    """
-    子进程执行：为单个 prompt 选择相似解并计算相似度（基于 embedding）。
-    """
     prompt_text = query.get('prompt', '')
     parents = query.get('parents', [])
 
@@ -123,13 +100,11 @@ def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extende
         show_progress=False
     )
 
-    # 补足数量
     while len(chosen_solutions) < 2 and len(high_score_pool_solutions) > 0:
         chosen_solutions.append(high_score_pool_solutions[np.random.randint(len(high_score_pool_solutions))][0])
     while len(rejected_solutions) < 2 and len(low_score_pool_solutions) > 0:
         rejected_solutions.append(low_score_pool_solutions[np.random.randint(len(low_score_pool_solutions))][0])
 
-    # 与统一格式对齐：使用 <candidate> 标签包裹候选解
     chosen_response = f"<candidate>{chosen_solutions[0]}</candidate>\n<candidate>{chosen_solutions[1]}</candidate>"
     rejected_response = f"<candidate>{rejected_solutions[0]}</candidate>\n<candidate>{rejected_solutions[1]}</candidate>"
 
@@ -139,7 +114,6 @@ def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extende
         "rejected": rejected_response
     }
 
-    # 详细数据：记录与前两个父代之间的相似度
     parent_values = [parent.get('value', '') for parent in parents if parent.get('value')]
     similarities = {}
     for p_idx, parent_val in enumerate(parent_values[:2]):
@@ -157,7 +131,6 @@ def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extende
                 except Exception:
                     similarities[f"similar_{p_idx+1}_r{r_idx+1}"] = 0.0
 
-    # 填充缺失字段
     for p in range(1, 3):
         for t in ['c', 'r']:
             for m in range(1, 2 + 1):
@@ -203,7 +176,6 @@ def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extende
 
 
 def load_prompt_history(pkl_path):
-    """从 pkl 文件中加载 prompt 历史记录"""
     pkl_dir = os.path.dirname(pkl_path)
     pkl_basename = os.path.basename(pkl_path).replace('.pkl', '')
 
@@ -231,21 +203,7 @@ def find_similar_solutions(target_parents, sol_pool,
                            min_threshold=0.3,
                            max_similarity=0.95,
                            show_progress=True):
-    """
-    在解空间池中寻找与 target_parents 相似的解（基于 embedding 相似度）。
-
-    Args:
-        target_parents: 目标父代解列表（list of dict, 含 'value' 字段）
-        sol_pool: 候选解池 [(solution_str, index), ...]
-        similarity_thresholds: 相似度阈值列表，从高到低
-        min_threshold: 最低相似度阈值，如果都找不到就选择相似度最高的
-        max_similarity: 最高相似度阈值，超过此值的解将被排除
-
-    Returns:
-        选中的两个解的字符串列表
-    """
     if not target_parents or not sol_pool:
-        # 如果没有父代信息或候选池为空，随机选择两个解
         selected = np.random.choice(len(sol_pool), min(2, len(sol_pool)), replace=False)
         sols = [sol_pool[i][0] for i in selected]
         return sols
@@ -259,12 +217,11 @@ def find_similar_solutions(target_parents, sol_pool,
     selected_solutions = []
     used_indices = set()
 
-    # 尝试不同的相似度阈值
     for threshold in similarity_thresholds:
         if len(selected_solutions) >= 2:
             break
 
-        iterator = tqdm(sol_pool, desc=f"相似度筛选(阈值={threshold:.1f})", leave=False) if show_progress else sol_pool
+        iterator = tqdm(sol_pool, desc=f"Similarity filtering (threshold={threshold:.1f})", leave=False) if show_progress else sol_pool
         for sol_str, sol_idx in iterator:
             if sol_idx in used_indices or len(selected_solutions) >= 2:
                 continue
@@ -278,7 +235,6 @@ def find_similar_solutions(target_parents, sol_pool,
                     print(f"Error calculating similarity: {e}")
                     continue
 
-            # 添加相似度上限限制：相似度必须在 threshold 和 max_similarity 之间
             if threshold <= max_similarity_score <= max_similarity:
                 selected_solutions.append(sol_str)
                 used_indices.add(sol_idx)
@@ -286,10 +242,9 @@ def find_similar_solutions(target_parents, sol_pool,
         if len(selected_solutions) >= 2:
             break
 
-    # 如果仍然找不到足够的解，选择相似度最高但不超过上限的解
     if len(selected_solutions) < 2:
         similarities = []
-        iterator = tqdm(sol_pool, desc="寻找最高相似度备选", leave=False) if show_progress else sol_pool
+        iterator = tqdm(sol_pool, desc="Finding highest similarity candidates", leave=False) if show_progress else sol_pool
         for sol_str, sol_idx in iterator:
             if sol_idx in used_indices:
                 continue
@@ -310,10 +265,9 @@ def find_similar_solutions(target_parents, sol_pool,
         for i in range(min(needed, len(similarities))):
             selected_solutions.append(similarities[i][1])
 
-    # 如果还是不够，随机补充（但仍要满足相似度上限）
     while len(selected_solutions) < 2 and len(sol_pool) > len(selected_solutions):
         available_candidates = []
-        iterator = tqdm(sol_pool, desc="补充候选筛选", leave=False) if show_progress else enumerate(sol_pool)
+        iterator = tqdm(sol_pool, desc="Supplementary candidate filtering", leave=False) if show_progress else enumerate(sol_pool)
         if show_progress:
             iterable = enumerate(iterator)
         else:
@@ -345,10 +299,6 @@ def find_similar_solutions(target_parents, sol_pool,
 
 
 def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
-    """
-    从 pkl 文件创建 DPO 数据集，使用基于 embedding 的相似度进行解的选择。
-    该脚本专为非分子任务（如 circle_packing）设计。
-    """
     print(f"Loading optimization data from {pkl_path}")
     with open(pkl_path, "rb") as fin:
         data = pickle.load(fin)
@@ -358,20 +308,16 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
         print("No candidates found in the pkl file.")
         return 0
 
-    # 按照总分排序（从高到低）
     sorted_items = sorted(all_items, key=lambda x: x[0].total, reverse=True)
     print(f"Found {len(sorted_items)} candidates, sorted by total score")
 
-    # 加载 prompt 历史记录
     prompt_history = load_prompt_history(pkl_path)
     print(f"Loaded {len(prompt_history)} historical prompts")
 
-    # 限制 prompt 数量，取最新的 128 条
     if len(prompt_history) > 128:
         prompt_history = prompt_history[-128:]
         print(f"Limited to latest {len(prompt_history)} prompts")
 
-    # 计算采样数量
     if num_pairs is None:
         num_pairs = min(len(prompt_history), data['evaluation'][-1]['all_unique_moles'] // 2)
 
@@ -379,7 +325,6 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
         print("No prompts available for generating DPO data.")
         return 0
 
-    # 定义候选解池范围：前 30% 作为高分区间，后 30% 作为低分区间
     total_items = len(sorted_items)
     high_score_pool_size = int(total_items * 0.3)
     low_score_pool_size = int(total_items * 0.3)
@@ -387,23 +332,19 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
     high_score_pool = [(sorted_items[i][0], i) for i in range(high_score_pool_size)]
     low_score_pool = [(sorted_items[i][0], i) for i in range(total_items - low_score_pool_size, total_items)]
 
-    # 扩展候选池（如果需要的话）：前 50%
     high_score_extended_pool = [(sorted_items[i][0], i) for i in range(int(total_items * 0.5))]
 
     print(f"High score pool: {len(high_score_pool)} candidates")
     print(f"Low score pool: {len(low_score_pool)} candidates")
 
-    # 预处理：将候选池转换为仅含字符串表示的轻量结构
     high_score_pool_solutions = [(item.value, idx) for item, idx in high_score_pool]
     low_score_pool_solutions = [(item.value, idx) for item, idx in low_score_pool]
     high_score_extended_pool_solutions = [(item.value, idx) for item, idx in high_score_extended_pool]
 
-    # 构建 solution -> total 的映射，以便在子进程查询
     solution_to_total = {}
     for item, _ in sorted_items:
         solution_to_total[item.value] = item.total
 
-    # 并行处理每个 prompt
     dpo_data = [None] * min(num_pairs, len(prompt_history))
     full_data = [None] * min(num_pairs, len(prompt_history))
 
@@ -421,18 +362,15 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
             )
             for i in range(total_pairs)
         ]
-        for fut in tqdm(as_completed(futures), total=total_pairs, desc="并行生成 DPO 数据对（embedding 相似度）", unit="pair"):
+        for fut in tqdm(as_completed(futures), total=total_pairs, desc="Parallel DPO data generation (embedding similarity)", unit="pair"):
             idx, dpo_item, full_item = fut.result()
             dpo_data[idx] = dpo_item
             full_data[idx] = full_item
 
-    # 保存 DPO 数据结果
     os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
     with open(output_json_path, "w") as fout:
         json.dump(dpo_data, fout, indent=2, ensure_ascii=False)
 
-    # 保存完整数据
-    # 使用项目内的相对路径
     MCCE_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     fulldata_dir = os.path.join(MCCE_PROJECT_ROOT, "data", "dpo_training", "fulldata")
     os.makedirs(fulldata_dir, exist_ok=True)
@@ -443,14 +381,13 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
     with open(fulldata_path, "w") as fout:
         json.dump(full_data, fout, indent=2, ensure_ascii=False)
 
-    print(f"DPO 数据集构造完成，共生成 {len(dpo_data)} 条数据对，已保存到 {output_json_path}")
-    print(f"完整数据已保存到 {fulldata_path}")
-    print("Chosen 解来自高分区间，Rejected 解来自低分区间，基于与 parents 的 embedding 相似度选择")
+    print(f"DPO dataset completed, {len(dpo_data)} pairs generated, saved to {output_json_path}")
+    print(f"Full data saved to {fulldata_path}")
+    print("Chosen solutions from high score range, rejected solutions from low score range, selected based on embedding similarity with parents")
     return len(dpo_data)
 
 
 def main():
-    # 获取MCCE项目根目录
     MCCE_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     parser = argparse.ArgumentParser(
@@ -466,7 +403,7 @@ def main():
     parser.add_argument("--num_pairs", type=int, help="Number of data pairs to generate (optional).")
     parser.add_argument(
         "--ref_model_path",
-        default="/home/lzz/models/Qwen/Qwen2.5-7B-Instruct",
+        default="<TO_BE_FILLED>",
         help="Reference model path (always the original base model)",
     )
 
@@ -485,7 +422,6 @@ def main():
         print("No data pairs generated. Exiting.")
         return
 
-    # 2. 运行 DPO 训练脚本（使用项目内的训练脚本）
     training_script = os.path.join(MCCE_PROJECT_ROOT, "training", "train_dpo.py")
     print(f"Starting DPO training for experiment: {args.exp}")
 
@@ -516,7 +452,6 @@ def main():
         print(f"Using reference model (fixed): {args.ref_model_path}")
 
     command_str = " ".join(shlex.quote(c) for c in command_list)
-    # 使用完整的conda初始化路径以支持subprocess调用
     final_command = f"source $(conda info --base)/etc/profile.d/conda.sh && conda activate verl && {command_str}"
 
     print("Running command:")
@@ -548,5 +483,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 

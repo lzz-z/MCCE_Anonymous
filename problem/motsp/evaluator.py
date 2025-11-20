@@ -5,7 +5,6 @@ import random
 import os
 
 def load_problem_data(problem_id):
-    # 使用项目内的相对路径
     MCCE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     data_path = os.path.join(MCCE_ROOT, "data", "problems", "MOTSP", "problem.txt")
     cities = []

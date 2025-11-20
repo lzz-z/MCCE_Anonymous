@@ -11,12 +11,11 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import numpy as np
 from tqdm import tqdm
 
-# 确保脚本可以直接 import MCCE 内部模块（algorithm、problem 等）
-MCCE_ROOT = "/home/lzz/MCCE"
+MCCE_ROOT = "<TO_BE_FILLED>"
 if MCCE_ROOT not in sys.path:
     sys.path.append(MCCE_ROOT)
 
-# 进程内缓存，避免重复解析和重复计算嵌入
+
 _embedding_cache = {}
 
 try:
@@ -33,14 +32,11 @@ try:
 except (ImportError, ModuleNotFoundError):
     motsp_evaluator = None
 
-# 默认与 evaluator.py 相同的数据路径
-# 使用项目内的相对路径
 MCCE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_PROBLEM_DATA_PATH = os.path.join(MCCE_ROOT, "data", "problems", "MOTSP", "problem.txt")
 
 
 def _load_problem_data_fallback():
-    """在无法 import evaluator 时，直接从默认文本读取城市坐标。"""
     if not os.path.exists(DEFAULT_PROBLEM_DATA_PATH):
         return None
 
@@ -61,17 +57,15 @@ def _load_problem_data_fallback():
 
 
 def _load_motsp_cities():
-    """加载 MOTSP 城市坐标，优先复用 evaluator 中的实现。"""
     if motsp_evaluator is not None:
         try:
             return motsp_evaluator.load_problem_data(1)
-        except Exception as exc:  # pylint: disable=broad-except
-            print(f"[WARN] load_problem_data 失败，fallback 到文本解析: {exc}")
+        except Exception as exc:
+            print(f"[WARN] load_problem_data failed, fallback to text parsing: {exc}")
     return _load_problem_data_fallback()
 
 
 def _prepare_distance_matrices(cities):
-    """预先计算两个目标的距离矩阵，便于快速生成 embedding。"""
     if cities is None or len(cities) == 0:
         return None, None
     coords1 = cities[:, :2]
@@ -86,17 +80,13 @@ DIST1, DIST2 = _prepare_distance_matrices(MOTSP_CITIES)
 
 
 def _parse_motsp_solution(sol_str):
-    """
-    将 MCCE 生成的 tour 字符串解析为城市序列。
-    期望格式：tour = np.array([...])
-    """
     if not isinstance(sol_str, str) or "tour" not in sol_str:
         return None
     local_vars = {}
     try:
-        exec(sol_str, {"np": np}, local_vars)  # noqa: S102
-    except Exception as exc:  # pylint: disable=broad-except
-        print(f"[WARN] 解析 MOTSP 解失败：{exc}")
+        exec(sol_str, {"np": np}, local_vars)
+    except Exception as exc:
+        print(f"[WARN] Failed to parse MOTSP solution: {exc}")
         return None
     tour = local_vars.get("tour")
     if tour is None:
@@ -108,9 +98,6 @@ def _parse_motsp_solution(sol_str):
 
 
 def _tour_to_embedding(tour):
-    """
-    将城市序列映射为 embedding：拼接目标1/目标2沿途边长序列并做 L2 归一化。
-    """
     if DIST1 is None or DIST2 is None:
         return None
     n = tour.size
@@ -134,7 +121,6 @@ def _tour_to_embedding(tour):
 
 
 def get_embedding(sol_str):
-    """获取 MOTSP 解的 embedding，带缓存。"""
     global _embedding_cache
     if sol_str in _embedding_cache:
         return _embedding_cache[sol_str]
@@ -148,7 +134,6 @@ def get_embedding(sol_str):
 
 
 def calculate_similarity(sol1, sol2):
-    """基于 embedding 的余弦相似度，并映射到 [0, 1] 区间。"""
     emb1 = get_embedding(sol1)
     emb2 = get_embedding(sol2)
     if emb1 is None or emb2 is None:
@@ -162,7 +147,6 @@ def calculate_similarity(sol1, sol2):
 
 def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extended_pool_solutions,
                        low_score_pool_solutions, solution_to_total):
-    """子进程执行：基于 embedding 相似度挑选候选解。"""
     prompt_text = query.get('prompt', '')
     parents = query.get('parents', [])
 
@@ -215,13 +199,13 @@ def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extende
                 try:
                     sim = calculate_similarity(parent_val, chosen)
                     similarities[f"similar_{p_idx+1}_c{c_idx+1}"] = sim
-                except Exception:  # pylint: disable=broad-except
+                except Exception:
                     similarities[f"similar_{p_idx+1}_c{c_idx+1}"] = 0.0
             for r_idx, rejected in enumerate(rejected_solutions[:2]):
                 try:
                     sim = calculate_similarity(parent_val, rejected)
                     similarities[f"similar_{p_idx+1}_r{r_idx+1}"] = sim
-                except Exception:  # pylint: disable=broad-except
+                except Exception:
                     similarities[f"similar_{p_idx+1}_r{r_idx+1}"] = 0.0
 
     for p in range(1, 3):
@@ -269,7 +253,6 @@ def process_one_prompt(idx, query, high_score_pool_solutions, high_score_extende
 
 
 def load_prompt_history(pkl_path):
-    """从 pkl 所在目录旁的 prompt 记录中载入历史查询。"""
     pkl_dir = os.path.dirname(pkl_path)
     pkl_basename = os.path.basename(pkl_path).replace('.pkl', '')
 
@@ -284,7 +267,7 @@ def load_prompt_history(pkl_path):
                     with open(prompt_file_path, 'r', encoding='utf-8') as fin:
                         prompt_data = json.load(fin)
                     return prompt_data.get('queries', [])
-                except Exception as exc:  # pylint: disable=broad-except
+                except Exception as exc:
                     print(f"Failed to load prompt file {prompt_file_path}: {exc}")
                     break
 
@@ -297,9 +280,6 @@ def find_similar_solutions(target_parents, sol_pool,
                            min_threshold=0.3,
                            max_similarity=0.95,
                            show_progress=True):
-    """
-    在候选解池中根据 embedding 相似度筛选与父代相似的候选。
-    """
     if similarity_thresholds is None:
         similarity_thresholds = [0.7, 0.6, 0.5]
 
@@ -319,7 +299,7 @@ def find_similar_solutions(target_parents, sol_pool,
         if len(selected_solutions) >= 2:
             break
 
-        iterator = tqdm(sol_pool, desc=f"相似度筛选(阈值={threshold:.1f})", leave=False) if show_progress else sol_pool
+        iterator = tqdm(sol_pool, desc=f"Similarity filtering (threshold={threshold:.1f})", leave=False) if show_progress else sol_pool
         for sol_str, sol_idx in iterator:
             if sol_idx in used_indices or len(selected_solutions) >= 2:
                 continue
@@ -329,7 +309,7 @@ def find_similar_solutions(target_parents, sol_pool,
                 try:
                     similarity = calculate_similarity(parent_val, sol_str)
                     max_similarity_score = max(max_similarity_score, similarity)
-                except Exception:  # pylint: disable=broad-except
+                except Exception:
                     continue
 
             if threshold <= max_similarity_score <= max_similarity:
@@ -341,7 +321,7 @@ def find_similar_solutions(target_parents, sol_pool,
 
     if len(selected_solutions) < 2:
         similarities = []
-        iterator = tqdm(sol_pool, desc="寻找最高相似度备选", leave=False) if show_progress else sol_pool
+        iterator = tqdm(sol_pool, desc="Finding highest similarity candidates", leave=False) if show_progress else sol_pool
         for sol_str, sol_idx in iterator:
             if sol_idx in used_indices:
                 continue
@@ -350,7 +330,7 @@ def find_similar_solutions(target_parents, sol_pool,
                 try:
                     similarity = calculate_similarity(parent_val, sol_str)
                     max_similarity_score = max(max_similarity_score, similarity)
-                except Exception:  # pylint: disable=broad-except
+                except Exception:
                     continue
             if max_similarity_score <= max_similarity:
                 similarities.append((max_similarity_score, sol_str, sol_idx))
@@ -361,7 +341,7 @@ def find_similar_solutions(target_parents, sol_pool,
 
     while len(selected_solutions) < 2 and len(sol_pool) > len(selected_solutions):
         available_candidates = []
-        iterator = tqdm(sol_pool, desc="补充候选筛选", leave=False) if show_progress else enumerate(sol_pool)
+        iterator = tqdm(sol_pool, desc="Supplementary candidate filtering", leave=False) if show_progress else enumerate(sol_pool)
         iterable = enumerate(iterator) if show_progress else iterator
         for i, (sol_str, sol_idx) in iterable:
             if sol_idx in used_indices:
@@ -371,7 +351,7 @@ def find_similar_solutions(target_parents, sol_pool,
                 try:
                     similarity = calculate_similarity(parent_val, sol_str)
                     max_similarity_score = max(max_similarity_score, similarity)
-                except Exception:  # pylint: disable=broad-except
+                except Exception:
                     continue
             if max_similarity_score <= max_similarity:
                 available_candidates.append(i)
@@ -388,9 +368,6 @@ def find_similar_solutions(target_parents, sol_pool,
 
 
 def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
-    """
-    从 motsp 任务的 pkl 中构造 DPO 数据，使用 embedding 相似度挑选正负样本。
-    """
     print(f"Loading optimization data from {pkl_path}")
     with open(pkl_path, "rb") as fin:
         data = pickle.load(fin)
@@ -453,7 +430,7 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
             )
             for i in range(total_pairs)
         ]
-        for fut in tqdm(as_completed(futures), total=total_pairs, desc="并行生成 DPO 数据对（embedding 相似度）", unit="pair"):
+        for fut in tqdm(as_completed(futures), total=total_pairs, desc="Parallel DPO data generation (embedding similarity)", unit="pair"):
             idx, dpo_item, full_item = fut.result()
             dpo_data[idx] = dpo_item
             full_data[idx] = full_item
@@ -462,7 +439,6 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
     with open(output_json_path, "w", encoding="utf-8") as fout:
         json.dump(dpo_data, fout, indent=2, ensure_ascii=False)
 
-    # 使用项目内的相对路径
     MCCE_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     fulldata_dir = os.path.join(MCCE_PROJECT_ROOT, "data", "dpo_training", "fulldata")
     os.makedirs(fulldata_dir, exist_ok=True)
@@ -471,31 +447,30 @@ def create_dpo_data_from_pkl_v2(pkl_path, output_json_path, num_pairs=None):
     with open(fulldata_path, "w", encoding="utf-8") as fout:
         json.dump(full_data, fout, indent=2, ensure_ascii=False)
 
-    print(f"DPO 数据集构造完成，共生成 {len(dpo_data)} 条数据对，已保存到 {output_json_path}")
-    print(f"完整数据已保存到 {fulldata_path}")
-    print("Chosen 解来自高分区间，Rejected 解来自低分区间，基于与 parents 的 embedding 相似度选择")
+    print(f"DPO dataset completed, {len(dpo_data)} pairs generated, saved to {output_json_path}")
+    print(f"Full data saved to {fulldata_path}")
+    print("Chosen solutions from high score range, rejected solutions from low score range, selected based on embedding similarity with parents")
     return len(dpo_data)
 
 
 def main():
-    # 获取MCCE项目根目录
     MCCE_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     parser = argparse.ArgumentParser(
-        description="为 MOTSP 任务构建基于 embedding 相似度的 DPO 数据并触发训练。"
+        description="Build embedding-based DPO data for MOTSP task and trigger training."
     )
-    parser.add_argument("--exp", required=True, help="实验名称，用于输出目录命名")
-    parser.add_argument("--pkl_path", required=True, help="包含优化轨迹的 pkl 文件路径")
+    parser.add_argument("--exp", required=True, help="Experiment name for output directory naming")
+    parser.add_argument("--pkl_path", required=True, help="Path to pkl file containing optimization trajectory")
     parser.add_argument("--data_dir", default=os.path.join(MCCE_PROJECT_ROOT, "data", "dpo_training"), 
-                       help="保存 DPO JSON 数据的目录")
+                       help="Directory to save DPO JSON data")
     parser.add_argument("--model_dir", default=os.path.join(MCCE_PROJECT_ROOT, "data", "dpo_models"), 
-                       help="保存训练后模型的目录")
-    parser.add_argument("--prev_exp", help="上一轮实验名称，可用于 warm start")
-    parser.add_argument("--num_pairs", type=int, help="可选，生成的数据对数量")
+                       help="Directory to save trained models")
+    parser.add_argument("--prev_exp", help="Previous experiment name for warm start")
+    parser.add_argument("--num_pairs", type=int, help="Optional, number of data pairs to generate")
     parser.add_argument(
         "--ref_model_path",
-        default="/home/lzz/models/Qwen/Qwen2.5-7B-Instruct",
-        help="DPO 训练时的参考模型路径（固定基座）",
+        default="<TO_BE_FILLED>",
+        help="Reference model path for DPO training (fixed base)",
     )
 
     args = parser.parse_args()
@@ -543,7 +518,6 @@ def main():
         print(f"Using reference model (fixed): {args.ref_model_path}")
 
     command_str = " ".join(shlex.quote(c) for c in command_list)
-    # 使用完整的conda初始化路径以支持subprocess调用
     final_command = f"source $(conda info --base)/etc/profile.d/conda.sh && conda activate verl && {command_str}"
 
     print("Running command:")

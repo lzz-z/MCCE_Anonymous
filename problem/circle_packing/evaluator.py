@@ -14,7 +14,7 @@ def generate_initial_population(config,seed=42):
         centers = np.zeros((n, 2))
         radii = np.linspace(0.12, 0.05, n)
         # Hex-like grid placement with jitter
-        grid_count = int(n * 0.8)  # ~80%放在网格上
+        grid_count = int(n * 0.8)
         grid_x = int(np.sqrt(grid_count))
         grid_y = int(np.ceil(grid_count / grid_x))
         x_coords = np.linspace(0.15, 0.85, grid_x)
@@ -44,7 +44,6 @@ def convert2str(centers,radii):
     centers_str = np.array2string(centers, separator=', ', precision=6, suppress_small=True, max_line_width=1000)
     radii_str = np.array2string(radii, separator=', ', precision=6, suppress_small=True, max_line_width=1000)
 
-    # 拼接为完整字符串
     final_string = (
     "centers = np.array(" + centers_str + ")\n\n"
     "radii = np.array(" + radii_str + ")"
@@ -92,7 +91,7 @@ def has_overlap(centers, radii, tolerance=1e-8):
 
 def has_out_of_bounds(centers, radii, eps=1e-6):
     """
-    检查是否有圆超出边界（单位正方形）
+
     """
     for (x, y), r in zip(centers, radii):
         if (x - r < 0 - eps or x + r > 1 + eps or
@@ -108,7 +107,6 @@ def optimize_until_valid(centers, radii, max_attempts=5):
 
         if not has_conflict and not has_border:
             return centers, radii, sum_radii
-        print(f"⚠️ 存在非法情况：{'重叠' if has_conflict else ''}{' 越界' if has_border else ''}")
 
 def optimize_radii(centers,radii):
     """

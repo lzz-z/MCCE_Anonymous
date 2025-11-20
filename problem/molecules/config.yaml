@@ -1,14 +1,13 @@
 exper_name: "Multi-objective molecule optimization with MCCE"
 description: "Use original selection, which uses current pop to select"
-save_dir: "/home/lzz/mollm_results/exp"
+save_dir: "/mollm_results/exp"
 save_suffix: "0919_exp0.1"
 
 cal_div: True
 resume: False
 early_stopping: False
 model:
-  name: zgca,gpt-4o-2024-05-13   #  gemini-2.5-flash-nothinking  #,gemini-2.5-flash-nothinking     gpt-4-0125-preview  gpt-4o-2024-05-13
-  # name2: zgca,gpt-4o-2024-05-13
+  name: gpt-4o-2024-05-13   #  gemini-2.5-flash-nothinking  #,gemini-2.5-flash-nothinking     gpt-4-0125-preview  gpt-4o-2024-05-13
   prompt_module: Prompt
   #temperature: 1.
   experience_prob: 0.5
@@ -16,14 +15,11 @@ model:
   mutation_prob: 0.2 
   explore_prob: 0. 
 
-# 是否启用主/辅模型协同 + DPO 流程
-# True: 主模型使用上面的 model.name，辅模型固定为本地 qwen2.5-7b-instruct
-# False: 使用单一模型（与原始 MCCE 行为一致）
 model_collaboration: True
 
 goals: [sa,drd2,qed,gsk3b,jnk3]
 optimization_direction: [min,min,max,min,max]
-prompt_info_path: /home/lzz/MCCE/problem/molecules/molecule.yaml
+prompt_info_path: MCCE/problem/molecules/molecule.yaml
 ### Important ###
 evalutor_path: problem.molecules.evaluator
 

@@ -1,6 +1,6 @@
 import requests
 import json
-url = 'http://cpu1.ms.wyue.site:8000/process'
+url = '<TO_BE_FILLED>'
 import time
 from functools import partial
 import numpy as np
@@ -19,9 +19,9 @@ def get_evaluation(evaluate_metric, smiles):
 from tdc import Oracle, Evaluator
 
 def generate_initial_population(config,seed):
-    with open('/home/lzz/MCCE/data/data_goal5.json','r') as f:
+    with open('<TO_BE_FILLED>','r') as f:
         data = json.load(f)
-    data_type = f'random{seed-41}' # initial_pop: "random1" # best100, worst100, random1 ~ 5
+    data_type = f'random{seed-41}'
     data_type = 'random1'
     print(f'loading {data_type} as initial pop!')
     smiles = data[data_type]

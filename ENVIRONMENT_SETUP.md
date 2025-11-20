@@ -336,16 +336,3 @@ conda activate verl && python -c "import trl; import swanlab; print('✓')"
 # Run MCCE
 conda activate moorl && python main.py problem/molecules/config.yaml
 ```
-
-## 🔗 Related Resources
-
-- PyTorch Installation: https://pytorch.org/get-started/locally/
-- HuggingFace Documentation: https://huggingface.co/docs
-- TRL Documentation: https://huggingface.co/docs/trl
-- MCCE Project: https://github.com/your-repo/MCCE
-
----
-
-**Last Updated**: 2025-11-20  
-**MCCE Version**: 1.0.0
-

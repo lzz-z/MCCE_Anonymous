@@ -1,31 +1,26 @@
-# -*- coding: utf-8 -*-
 from sfm.data.sci_data.SFMDecTokenizer import SFMDecTokenizer
 import torch
 import os
 from tools.rl4s.evaluation_client import get_evaluation
 import argparse
-#nano rl4s/Data/202407/qed/dpo_qed_test.csv
-# validation = False
 
 def load_scigpt():
-    tokenizer_home = '/home/v-nianran/rl4s/Data/Llama-2-7b-hf'
+    tokenizer_home = '<TO_BE_FILLED>'
     tokenizer = SFMDecTokenizer.from_pretrained(
         tokenizer_home,
-        prot_spm_path='/home/v-nianran/blob/shufxi/data/scigpt/ur50bpe/bpe',
-        dna_spm_path='/home/v-nianran/blob/shufxi/data/scigpt/dnabpe/bpe',
-        rna_spm_path='/home/v-nianran/blob/shufxi/data/scigpt/rnabpe/bpe',
+        prot_spm_path='<TO_BE_FILLED>',
+        dna_spm_path='<TO_BE_FILLED>',
+        rna_spm_path='<TO_BE_FILLED>',
     )
 
 
     from transformers import AutoTokenizer, AutoModelForCausalLM
 
-    exp_name =  'eval_dpo_qed_epoch3'  #'inference_test'
-    validation = False #args.validation
-    # step = 29999
-    # bsz = 96
-    ckpt_home = '/home/v-nianran/rl4s/users/yuwang5/logs/test/total/20240712154953/global_step4818'  #f'/hai1/shufxi/scigpt/7bv3/stageB/global_step29999/'
-    save_dir = '/home/v-nianran/rl4s/users/nian/evaluation_res'  #'/blob/yuwang5/'
-    setting = ['similarity','logp']  #['similarity', 'logp', 'qed', 'drd2']
+    exp_name =  'eval_dpo_qed_epoch3'
+    validation = False
+    ckpt_home = '<TO_BE_FILLED>'
+    save_dir = '<TO_BE_FILLED>'
+    setting = ['similarity','logp']
     print( ['similarity']  + setting)
 
     def show_ckpt(name, ckpt):
@@ -60,7 +55,6 @@ def load_scigpt():
                 continue
             ckpt_dict[f"model.layers.{l}.{k}"] = layer[k]
     layer = torch.load(os.path.join(ckpt_home, "layer_33-model_states.pt"), map_location=torch.device("cpu"))
-    # del layer['norm_ref.weight']
     show_ckpt(33, layer)
     ckpt_dict["model.norm.weight"] = layer["norm.weight"]
 

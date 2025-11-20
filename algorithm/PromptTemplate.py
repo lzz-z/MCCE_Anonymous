@@ -91,8 +91,6 @@ class Prompt:
                 self._make_instruction_prompt(oper_type)
             ]
         final_prompt = ''.join(parts)
-        #print('prompt example:',final_prompt)
-        #assert False
         return final_prompt
 
     def _make_description_prompt(self) -> str:
@@ -109,7 +107,6 @@ class Prompt:
                     ", ".join([f"{prop}:{score:.4f}" for prop, score in ind.property.items()]) + \
                     f", total: {ind.total:.4f}"
 
-            # 如果有 constraints，添加说明
             if ind.constraints is not None:
                 constraint_str = ", ".join([f"{k}:{v}" for k, v in ind.constraints.items()])
                 entry += f", constraint values are: {constraint_str}"
@@ -161,7 +158,6 @@ class Prompt:
         experience_type = np.random.choice(['best_f', 'hvc', 'pareto'], p=[0.5, 0., 0.5])
         sorted_items = sorted(all_items, key=lambda x: x.total)
 
-        # 取后半部分
         half = len(sorted_items) // 2
         back_half = sorted_items[half:]
         if half<10:
@@ -247,7 +243,7 @@ metadata = {
 }
 import json
 if __name__ == '__main__':
-    with open('/home/hp/src/MOLLM/data/goals5.json','r') as f:
+    with open('<TO_BE_FILLED>','r') as f:
         metadata = json.load(f)
     metadata = metadata['requirements'][0]
     ops = ['qed','sa','jnk3']

@@ -6,25 +6,20 @@ import os
 import math
 
 def load_problem_data(problem_id):
-    # 使用项目内的相对路径
     MCCE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     data_path = os.path.join(MCCE_ROOT, "data", "problems", "MOCVRP", f"MOCVRP_200_{problem_id}.txt")
     customers = []
     with open(data_path, 'r') as f:
         lines = f.readlines()
 
-    # 第一行：车辆数量和每辆车容量
     vehicle_info = lines[0].strip().split(',')
     n_vehicles = int(vehicle_info[0])
     vehicle_capacity = float(vehicle_info[1])
 
-    # 第二行：仓库坐标
     depot_coords = list(map(float, lines[1].strip().split(',')))
 
-    # 第三行：客户数量
     n_customers = int(lines[2].strip())
 
-    # 从第四行开始读取客户数据 (x, y, demand)
     for line in lines[3:3+n_customers]:
         line = line.strip()
         if line:

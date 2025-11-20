@@ -40,23 +40,20 @@ class MOO:
         self.reward_system = reward_system
         self.config = config
         self.seed = seed
-        # 主模型与辅模型（保持与 MOLLM_1 协同接口一致）
         self.llm = llm
         self.llm1 = llm
         self.llm2 = llm2
-        self.current_llm_flag = 0  # 0: 主模型, 1: 辅模型
+        self.current_llm_flag = 0
         self.history = HistoryBuffer()
         self.item_factory = ItemFactory(property_list)
         self.property_list = property_list
         self.pop_size = self.config.get('optimization.pop_size')
         self.budget = self.config.get('optimization.eval_budget')
-        # genetic_gfn (au) 已移除，保留 model_collaboration（MCCE Qwen协同）
         # self.use_au = self.config.get('use_au')
         self.save_dir = os.path.join(self.config.get('save_dir'),self.config.get('model.name'))
         self.prompt_module = getattr(PromptTemplate ,self.config.get('model.prompt_module',default='Prompt'))
         self.history_moles = []
         self.mol_buffer = []  # same as all_mols but with orders for computing auc
-        # genetic_gfn buffers 已移除
         # self.main_mol_buffer = []
         # self.au_mol_buffer = []
         self.results_dict = {'results': []}
@@ -73,17 +70,12 @@ class MOO:
         self.start_time = time.time()
         self.num_offspring = self.config.get('num_offspring', default=2)
 
-        # 记录统计信息
         self.record_dict = {}
-        # genetic_gfn 'au' 统计已移除，仅保留主模型统计
         for j in ['all_num', 'failed_num', 'repeat_num']:
             self.record_dict['main_' + j] = 0
         self.record_dict['main_history_smiles'] = []
 
-        # ---------------- DPO / 日志 相关：对齐 MOLLM_1/algorithm/MOO.py ----------------
-        # 只在需要协同 / DPO 时使用，不会影响原有单模型流程
         self._now_str = time.strftime('%m%d%H%M')
-        # 统一实验标识：用于 results / prompt 等日志文件名
         self.experiment_tag = (
             f"{'_'.join(self.property_list)}_"
             f"{self.config.get('save_suffix')}_"
@@ -94,11 +86,9 @@ class MOO:
             "init_pops": [],
             "final_pops": []
         }
-        # DPO 训练状态
         self.previous_dpo_exp_name = None
         self.current_dpo_model_path = None
-        self.original_ref_model_path = "/home/lzz/models/Qwen/Qwen2.5-7B-Instruct"
-        # 模型轮次计数（与 MOLLM_1 一致）
+        self.original_ref_model_path = "<TO_BE_FILLED>"
         self.model_round_counter = 0
         self.llm1_rounds = 0
         self.llm2_rounds = 0
@@ -259,7 +249,6 @@ class MOO:
         else:
             raise ValueError(f"Unknown buffer_type: {buffer_type}")
 
-        # 日志文件统一带时间戳，便于区分多次运行的结果
         json_path = os.path.join(save_dir, f"{self.experiment_tag}.json")
         os.makedirs(os.path.dirname(json_path), exist_ok=True)
 
@@ -293,7 +282,6 @@ class MOO:
         with open(json_path, 'w',encoding='utf-8') as f:
             json.dump(results_dict, f, ensure_ascii=False,indent=4)
         
-        # 在协同模式下，每次 log_results 都保存 prompt.json（像 motsp 一样），确保中断后也能保留记录
         if buffer_type == "default" and getattr(self.config, "get", None) and self.config.get('model_collaboration', default=False):
             self._save_prompt_records_json()
         
@@ -344,7 +332,6 @@ class MOO:
         if not os.path.exists(os.path.dirname(store_path)):
             os.makedirs(os.path.dirname(store_path), exist_ok=True)
             
-        # genetic_gfn (au_model) 初始化已移除
 
         """High level logic"""
         print('exper_name',self.config.get('exper_name'))
@@ -368,7 +355,6 @@ class MOO:
             self.log_results()
             init_pops = copy.deepcopy(population)
 
-        # 初始化 init_pops 到 prompt_records（与 MOLLM_1 一致）
         self.prompt_records["init_pops"] = [
             {
                 "value": item.value,
@@ -393,7 +379,6 @@ class MOO:
 
         self.num_gen = 0
 
-        # DPO 触发辅助变量
         last_triggered_multiple = 0
 
         while True:
@@ -401,7 +386,6 @@ class MOO:
                 print('inject!')
                 population.extend(random.sample(database, self.config.get('inject_per_generation')))
 
-            # 协同模式下，每一代先切换当前 LLM，与 MOLLM_1 对齐
             if getattr(self.config, "get", None) and self.config.get('model_collaboration', default=False):
                 self.switch_llm()
 
@@ -412,26 +396,21 @@ class MOO:
             )
             offspring = self.generate_offspring(population, offspring_times)
 
-            # 若存在新个体，基于历史缓冲与前代个体进行 Pareto 选择
             if offspring:
                 if len(self.mol_buffer) >= self.pop_size:
                     population = self.select_next_population(self.pop_size)
                 else:
                     population = offspring
             else:
-                # 若本轮未能生成有效个体，回退到历史最优种群，确保后续 LLM 仍有父代
                 selected = self.select_next_population(self.pop_size)
                 population = selected if selected else population
             self.log_results()
 
-            # 与 MOLLM_1 一致：按 experience_prob 更新经验
             if self.config.get('model.experience_prob') > 0 and len(self.mol_buffer) > 100:
                 self.update_experience()
 
-            # ---------------- DPO 触发逻辑：大小模型交替一次就触发 ----------------
             if getattr(self.config, "get", None) and self.config.get('model_collaboration', default=False) and self.llm2 is not None:
                 min_rounds = min(self.llm1_rounds, self.llm2_rounds)
-                # 修改为：每次大小模型都至少执行1轮后就触发DPO训练
                 should_trigger_dpo = (
                     self.llm1_rounds >= 1 and
                     self.llm2_rounds >= 1 and
@@ -445,7 +424,6 @@ class MOO:
                         f"LLM2 rounds={self.llm2_rounds}, total molecules={len(self.mol_buffer)}"
                     )
 
-                    # 保存最新数据，以供 DPO 数据脚本构造训练数据
                     data = {
                         'history': self.history,
                         'init_pops': init_pops,
@@ -459,29 +437,23 @@ class MOO:
                         pickle.dump(data, f)
                     print(f"Data saved to {store_path} before calling DPO training script.")
 
-                    # 同步将 prompt_records 写入 JSON，供 makerldata_* 读取（统一记录格式）
                     self._save_prompt_records_json()
 
-                    # 1) 先卸载本地模型，释放显存（与 MOLLM_1 一致）
                     if hasattr(self.llm2, 'reset_model'):
                         self.llm2.reset_model()
 
-                    # 2) 调用 DPO 数据&训练脚本（支持通过配置覆盖路径，默认使用分子任务脚本）
                     train_exp_name = (
                         f"{'_'.join(self.property_list)}_{self.config.get('save_suffix')}_"
                         f"{self.seed}_{self._now_str}_round{min(self.llm1_rounds, self.llm2_rounds)}"
                     )
-                    # 使用项目内的相对路径
                     MCCE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     dpo_data_dir = os.path.join(MCCE_ROOT, "data", "dpo_training")
                     dpo_model_dir = os.path.join(MCCE_ROOT, "data", "dpo_models")
 
                     import subprocess
-                    # 使用绝对路径调用 MCCE 下的 DPO 数据&训练脚本，避免找不到文件；
-                    # 若配置中提供 dpo_script_path，则优先使用（方便为不同任务定制，如 circle_packing 使用 embedding 相似度脚本）
                     dpo_script_path = self.config.get(
                         'dpo_script_path',
-                        default="/home/lzz/MCCE/tools/makerldata_dpov3.py"
+                        default="<TO_BE_FILLED>"
                     )
                     dpo_command = [
                         "python", dpo_script_path,
@@ -497,10 +469,8 @@ class MOO:
                     print(f"Starting DPO training with command: {' '.join(dpo_command)}")
                     subprocess.run(dpo_command)
 
-                    # 更新上一次实验名称
                     self.previous_dpo_exp_name = train_exp_name
 
-                    # 3) 训练完成后加载新模型，并删除旧的 DPO 模型目录（与 MOLLM_1 保持一致）
                     new_model_path = os.path.join(dpo_model_dir, train_exp_name)
                     if os.path.exists(new_model_path) and hasattr(self.llm2, 'load_model_from_path'):
                         previous_model_path = self.current_dpo_model_path
@@ -519,9 +489,7 @@ class MOO:
                     else:
                         print(f"Warning: Trained model path {new_model_path} does not exist. Continuing with current model.")
 
-            # ---------------- 终止条件与常规保存 ----------------
             if len(self.mol_buffer) >= self.budget or self.early_stopping:
-                # 结束前记录 final_pops
                 self.prompt_records["final_pops"] = [
                     {
                         "value": item.value,
@@ -532,7 +500,6 @@ class MOO:
                 ]
 
                 self.log_results(finish=True)
-                # genetic_gfn log_results 已移除
                 break
 
             self.num_gen += 1
@@ -551,18 +518,16 @@ class MOO:
             if self.num_gen % 10 == 0:
                 print(f"Data saved to {store_path}")
 
-        # 协同 + DPO 模式下，结束时也写一次 prompt_records，确保与 pkl 对应
         if getattr(self.config, "get", None) and self.config.get('model_collaboration', default=False):
             self._save_prompt_records_json()
 
         print(f'=======> total running time { (time.time() - start_time) / 3600 :.2f} hours <=======')
 
-        return init_pops, population  # 计算效率
+        return init_pops, population
 
     def _save_prompt_records_json(self):
         """
-        将当前的 prompt_records 统一写入 JSON，供各类 DPO 数据构建脚本读取。
-        文件命名规则与 MOLLM_1 保持一致：
+
         <save_dir>/prompt/<properties>_<save_suffix>_<seed>_prompt.json
         """
         if not (getattr(self.config, "get", None) and self.config.get('model_collaboration', default=False)):
@@ -570,7 +535,6 @@ class MOO:
 
         prompt_dir = os.path.join(self.save_dir, "prompt")
         os.makedirs(prompt_dir, exist_ok=True)
-        # 与 results 一样，使用统一的 experiment_tag，并在文件名中加入 _prompt 后缀
         prompt_json_path = os.path.join(prompt_dir, self.experiment_tag + '_prompt.json')
         with open(prompt_json_path, 'w', encoding='utf-8') as f:
             json.dump(self.prompt_records, f, ensure_ascii=False, indent=2)
@@ -638,15 +602,12 @@ class MOO:
         Returns:
         - list: Evaluated and recorded offspring.
         """
-        # 防御性检查：如果当前种群过小或为空，避免 random.sample 报错
         if not population:
             print("Warning: population is empty, skip offspring generation for this round.")
             return []
 
-        # 当种群数量 < num_offspring 时，按可用个体数采样，避免 ValueError
         sample_k = min(self.num_offspring, len(population))
         
-        # 根据当前使用的模型类型调整 offspring_times（方便调试/节省 API 成本）
         LOCAL_LLM_MODELS = [
             'qwen2.5-0.5b-instruct',
             'qwen2.5-3b-instruct',
@@ -659,11 +620,9 @@ class MOO:
             'customdata-sft-qwen2.5-7b-instruct-v2'
         ]
         
-        # 删除本地模型推理次数限制，统一使用默认的offspring_times
         
         parents = [random.sample(population, sample_k) for i in range(offspring_times)]
 
-        # 与 MOLLM_1 保持一致：本地大模型串行，API 模型并行
         LOCAL_LLM_MODELS = [
             'qwen2.5-0.5b-instruct',
             'qwen2.5-3b-instruct',
@@ -677,7 +636,6 @@ class MOO:
         ]
 
         if hasattr(self.llm, 'model_choice') and self.llm.model_choice in LOCAL_LLM_MODELS:
-            # 本地模型：串行推理，避免多线程占用显存，并显示进度条
             children, prompts, responses, parent_lists = [], [], [], []
             for parent_list in tqdm(parents, desc="LLM (local) generating offspring", leave=False):
                 child, prompt, response = self.mating(parent_list)
@@ -687,7 +645,6 @@ class MOO:
                 parent_lists.append(parent_list)
                 self.llm_calls += 1
         else:
-            # API 模型：并行加速，同时在终端显示进度条
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.mating, parent_list=parent_list) for parent_list in parents]
                 results = []
@@ -709,10 +666,8 @@ class MOO:
                     print("No results collected due to timeouts.")
                     return []
 
-        # 先记录本轮所有 LLM 调用的 prompt/response（无论是否产生有效 offspring）
         self.history.push(prompts, children, responses)
 
-        # 在协同 + DPO 场景下，统一记录每一步的 prompt / parents / children / response
         if getattr(self.config, "get", None) and self.config.get('model_collaboration', default=False):
             def _safe_total(item):
                 val = getattr(item, "total", 0.0)
@@ -758,7 +713,6 @@ class MOO:
             self.generated_num += len(child_pair)
             tmp_offspring.extend(child_pair)
 
-        # genetic_gfn 流程已移除
 
         offspring = tmp_offspring
         if len(offspring) == 0:
@@ -768,19 +722,14 @@ class MOO:
 
         return offspring
 
-    # save_log_mols 函数已移除（genetic_gfn 专用）
 
-    # ---------------- 协同模式下主/辅 LLM 切换（对齐 MOLLM_1） ----------------
     def switch_llm(self):
         """
-        两个 LLM 轮流出手：
-        - flag=0: 使用主模型 llm1
-        - flag=1: 使用辅模型 llm2（本地 Qwen，用于 DPO 微调）
+
         """
         if self.llm2 is not None:
             self.current_llm_flag = 1 - self.current_llm_flag
             self.llm = self.llm1 if self.current_llm_flag == 0 else self.llm2
-            # 更新轮次计数器（与 MOLLM_1 一致）
             if self.current_llm_flag == 0:
                 self.llm1_rounds += 1
             else:

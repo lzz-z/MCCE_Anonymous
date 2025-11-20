@@ -4,8 +4,8 @@ def extract_symbol_and_number(requirement_str):
     match = re.search(pattern, requirement_str.strip())
     
     if match:
-        symbol = match.group(1)  # Extracts the comparison symbol (e.g., '>=', '==', '!=', etc.)
-        number = float(match.group(2))  # Extracts the number (as a float, e.g., 2, -3, 3.14, etc.)
+        symbol = match.group(1)
+        number = float(match.group(2))
         return symbol, number
     else:
         raise NotImplementedError('The format of requirement is wrong:', requirement_str)
@@ -19,7 +19,7 @@ def judge(requirement,input_mol_value,output_mol_value):
     if metas[0] == 'towards':
         towards_value = float(metas[1])
         return (abs(output_mol_value-towards_value)<abs(input_mol_value-towards_value))
-    if len(metas) < 3 and metas[0] in ['increase','decrease']: # examples:  'increase, >=2' ,'decrease, >=2'
+    if len(metas) < 3 and metas[0] in ['increase','decrease']:
         direction = metas[0]
         if len(metas) == 1:
             symbol,number = '>',0
@@ -44,7 +44,7 @@ def judge(requirement,input_mol_value,output_mol_value):
         else:
             raise NotImplementedError('Not implemented symbol:',symbol)
     elif len(metas) == 3:
-        assert metas[0] == 'range' # only support range currently, e.g. 'range, 7, 8'
+        assert metas[0] == 'range'
         a, b = [float(x) for x in requirement.split(',')[1:]]
         return (a<=output_mol_value<=b)
 
@@ -53,7 +53,7 @@ from tqdm import tqdm
 import requests
 import json
 import numpy as np
-url = 'http://cpu1.ms.wyue.site:8000/process'
+url = '<TO_BE_FILLED>'
 import time
 
 
@@ -83,18 +83,13 @@ def eval_mo_results(dataset,obj,ops=['qed','logp','donor']):
     for index in tqdm(range(len(obj['final_pops']))):
         prompt = prompts[index]
         mol = extract_smiles_from_string(prompt)[0]
-        #print(mol)
         final_pops = obj['final_pops'][index]
-        input_mol = obj['init_pops'][index][-1] # get the original mol
+        input_mol = obj['init_pops'][index][-1]
         assert input_mol.value == mol
-        #combine_mols = [[mol, i.value] for i in final_pops] # this format for compatibility, but properties like qed,logp will only
-                                                            # evaluate the mols at [:,1]
-        #eval_res = get_evaluation(ops,combine_mols)
         success_times = 0
         for output_mol in final_pops:
             if eval_one(ops,requs[index],input_mol,output_mol):
                 success_times+=1
-        #print('success times:',success_times)
         hist_success_times.append(success_times)
     return np.array(hist_success_times)
 
@@ -107,4 +102,3 @@ def eval_one(ops,requs,input_mol,output_mol):
             if not judge(requs[op+'_requ']['requirement'], input_mol.property[op],output_mol.property[op]):
                 return False
     return True
-

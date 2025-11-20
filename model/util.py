@@ -10,7 +10,6 @@ def extract_smiles_from_string(text):
     return smiles_list
 
 def split_list(lst, n):
-    """Splits the list lst into n nearly equal parts."""
     k, m = divmod(len(lst), n)
     return [lst[i*k + min(i, m):(i+1)*k + min(i+1, m)] for i in range(n)]
 
@@ -36,7 +35,7 @@ def fast_non_dominated_sort(population):
     i = 0
     while len(front[i]) != 0:
         Q = []
-        for p in front[i]: # p: non dominated
+        for p in front[i]:
             for q in S[p]:
                 n[q] -= 1
                 if n[q] == 0:
@@ -87,7 +86,6 @@ def nsga2_selection(population, pop_size,return_fronts=False):
     return [population[i] for i in new_population]
 
 def so_selection(population, pop_size):
-    # Single objective
     sorted_items = sorted(population, key=lambda item: item.total, reverse=True)[:pop_size]
     return sorted_items
 
@@ -115,7 +113,7 @@ def hvc_selection(pops,pop_size):
     scores = np.stack(scores)
     hv_pygmo = pg.hypervolume(scores)
     hvc = hv_pygmo.contributions(np.array([1.1 for i in range(scores.shape[1])]))
-    sorted_indices = np.argsort(hvc)[::-1]  # Reverse to sort in descending order
+    sorted_indices = np.argsort(hvc)[::-1]
     bestn = [pops[i] for i in sorted_indices[:pop_size]]
     return bestn
 
@@ -150,7 +148,6 @@ def cal_fusion_hv(scores):
     ref_point = np.array([1.0,20.0])
     hv = HV(ref_point=ref_point)
     nds = NonDominatedSorting().do(scores,only_non_dominated_front=True)
-    #scores = scores[nds]
     return hv(scores)
 
 
