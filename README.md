@@ -64,11 +64,6 @@ conda create -n verl python=3.10
 conda activate verl
 pip install -r requirements_verl.txt
 
-# Install PyTorch with CUDA support:
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-```
-
-For detailed environment setup instructions, please refer to `ENVIRONMENT_SETUP.md`.
 
 ## Quick Start
 
@@ -131,12 +126,6 @@ MCCE automatically:
 
 Training data and models are saved in `data/dpo_training/` and `data/dpo_models/` directories.
 
-## Important Notes
-
-1. First run will download local Qwen models, which may take considerable time
-2. DPO training requires GPU support, CUDA environment recommended
-3. API models require appropriate API key configuration
-4. The optimization process generates extensive logs and data files
 
 ## Validation
 
@@ -158,12 +147,3 @@ python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
 
 - **Python**: 3.10
 - **GPU**: A800 40G *8
-
-
-## Citation
-
-If you use this project, please cite the relevant paper.
-
-## License
-
-This project is licensed under the MIT License.
