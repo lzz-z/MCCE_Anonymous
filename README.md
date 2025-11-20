@@ -1,144 +1,170 @@
 # MCCE: Multi-objective Cooperative Co-Evolution with LLMs
 
-MCCE是一个基于大语言模型（LLM）的多目标优化框架，支持分子优化、旅行商问题（MOTSP）、车辆路径问题（MOCVRP）和圆形填充问题。
+MCCE is a multi-objective optimization framework powered by Large Language Models (LLMs), supporting molecular optimization, Multi-Objective Traveling Salesman Problem (MOTSP), Multi-Objective Capacitated Vehicle Routing Problem (MOCVRP), and circle packing problems.
 
-## 项目特点
+## Key Features
 
-- **模型协同**: 支持API模型（如GPT、Claude、Gemini）与本地Qwen模型协同工作
-- **DPO训练**: 集成直接偏好优化（DPO）训练，自动生成训练数据并fine-tune模型
-- **多问题支持**: 支持分子优化、MOTSP、MOCVRP、圆形填充四类优化问题
-- **自包含**: 所有依赖代码和数据文件都在项目内部，无需外部路径依赖
+- **Model Collaboration**: Supports collaboration between API models (GPT, Claude, Gemini) and local Qwen models
+- **DPO Training**: Integrated Direct Preference Optimization (DPO) training with automatic data generation and model fine-tuning
+- **Multi-Problem Support**: Molecular optimization, MOTSP, MOCVRP, and circle packing
+- **Self-Contained**: All dependencies and data files are included within the project, no external path dependencies
 
-## 项目结构
+## Project Structure
 
 ```
 MCCE/
-├── algorithm/          # 核心算法实现
-│   ├── MOO.py         # 多目标优化算法
-│   ├── base.py        # 基础类定义
-│   └── PromptTemplate.py  # 提示模板
-├── model/             # 模型实现
-│   ├── MOLLM.py       # 主模型类
-│   ├── LLM.py         # LLM接口
-│   └── util.py        # 工具函数
-├── problem/           # 问题定义
-│   ├── molecules/     # 分子优化
-│   ├── motsp/         # 多目标TSP
-│   ├── mocvrp/        # 多目标CVRP
-│   └── circlepacking/ # 圆形填充
-├── tools/             # 数据生成工具
-│   ├── makerldata_dpov3.py           # 分子DPO数据
-│   ├── makerldata_motsp_embed.py     # MOTSP DPO数据
-│   ├── makerldata_mocvrp_embed.py    # MOCVRP DPO数据
-│   └── makerldata_circle_embed.py    # 圆形填充DPO数据
-├── training/          # 训练脚本
-│   └── train_dpo.py   # DPO训练实现
-├── data/              # 数据目录
-│   ├── problems/      # 问题数据文件
-│   ├── dpo_training/  # DPO训练数据（自动生成）
-│   └── dpo_models/    # DPO训练模型（自动生成）
-├── oracle/            # 分子评估数据
-├── eval.py            # 评估模块
-└── main.py            # 主入口
+├── algorithm/          # Core algorithm implementation
+│   ├── MOO.py         # Multi-objective optimization algorithm
+│   ├── base.py        # Base class definitions
+│   └── PromptTemplate.py  # Prompt templates
+├── model/             # Model implementations
+│   ├── MOLLM.py       # Main model class
+│   ├── LLM.py         # LLM interface
+│   └── util.py        # Utility functions
+├── problem/           # Problem definitions
+│   ├── molecules/     # Molecular optimization
+│   ├── motsp/         # Multi-Objective TSP
+│   ├── mocvrp/        # Multi-Objective CVRP
+│   └── circlepacking/ # Circle packing
+├── tools/             # Data generation tools
+│   ├── makerldata_dpov3.py           # Molecular DPO data
+│   ├── makerldata_motsp_embed.py     # MOTSP DPO data
+│   ├── makerldata_mocvrp_embed.py    # MOCVRP DPO data
+│   └── makerldata_circle_embed.py    # Circle packing DPO data
+├── training/          # Training scripts
+│   └── train_dpo.py   # DPO training implementation
+├── data/              # Data directory
+│   ├── problems/      # Problem data files
+│   ├── dpo_training/  # DPO training data (auto-generated)
+│   └── dpo_models/    # DPO trained models (auto-generated)
+├── oracle/            # Molecular evaluation data
+├── eval.py            # Evaluation module
+└── main.py            # Main entry point
 ```
 
-## 环境配置
+## Environment Setup
 
-本项目需要两个conda环境：
+This project requires two conda environments:
 
-### 1. moorl环境（主执行环境）
+### 1. moorl Environment (Main Execution)
 
 ```bash
 conda create -n moorl python=3.10
 conda activate moorl
 pip install -r requirements_moorl.txt
+
+# For molecular optimization, install rdkit:
+conda install -c conda-forge rdkit
 ```
 
-### 2. verl环境（DPO训练环境）
+### 2. verl Environment (DPO Training)
 
 ```bash
 conda create -n verl python=3.10
 conda activate verl
 pip install -r requirements_verl.txt
+
+# Install PyTorch with CUDA support:
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
-详细的环境配置说明请参考：
-- `环境配置说明.md` - 详细配置步骤
-- `环境安装快速指南.txt` - 快速安装指南
-- `环境文件总结.md` - 环境文件说明
+For detailed environment setup instructions, please refer to `ENVIRONMENT_SETUP.md`.
 
-## 快速开始
+## Quick Start
 
-### 运行分子优化任务
+### Run Molecular Optimization
 
 ```bash
 conda activate moorl
 python main.py problem/molecules/config.yaml
 ```
 
-### 运行MOTSP任务
+### Run MOTSP
 
 ```bash
 conda activate moorl
 python main.py problem/motsp/config.yaml
 ```
 
-### 运行MOCVRP任务
+### Run MOCVRP
 
 ```bash
 conda activate moorl
 python main.py problem/mocvrp/config.yaml
 ```
 
-### 运行圆形填充任务
+### Run Circle Packing
 
 ```bash
 conda activate moorl
 python main.py problem/circlepacking/config.yaml
 ```
 
-## 配置说明
+## Configuration
 
-每个问题都有独立的配置文件，主要参数包括：
+Each problem has its own configuration file with key parameters:
 
-- `max_generation`: 最大迭代代数
-- `pop_size`: 种群大小
-- `model_collaboration`: 是否启用模型协同
-- `use_dpo`: 是否使用DPO训练
-- `model_name`: API模型名称（如 `gemini-2.5-flash-nothinking`）
-- `local_model_path`: 本地Qwen模型路径
+- `max_generation`: Maximum number of iterations
+- `pop_size`: Population size
+- `model_collaboration`: Enable model collaboration
+- `use_dpo`: Enable DPO training
+- `model_name`: API model name (e.g., `gemini-2.5-flash-nothinking`)
+- `local_model_path`: Local Qwen model path
 
-## 自定义优化问题
+## Custom Optimization Problems
 
-要定义新的优化问题，需要创建以下文件：
+To define a new optimization problem, create the following files:
 
-1. **`config.yaml`** - 算法参数配置
-2. **`{problem}.yaml`** - 问题描述和目标定义
-3. **`evaluator.py`** - 评估函数实现
+1. **`config.yaml`** - Algorithm parameter configuration
+2. **`{problem}.yaml`** - Problem description and objective definitions
+3. **`evaluator.py`** - Evaluation function implementation
 
-详细的教程请参考各问题目录下的示例文件。
+Refer to the example files in each problem directory for detailed tutorials.
 
-## DPO训练
+## DPO Training
 
-MCCE会在优化过程中自动：
-1. 收集优化数据（chosen/rejected样本对）
-2. 生成DPO训练数据集
-3. 启动DPO训练（使用verl环境）
-4. 更新模型权重
+MCCE automatically:
+1. Collects optimization data (chosen/rejected sample pairs)
+2. Generates DPO training datasets
+3. Launches DPO training (using verl environment)
+4. Updates model weights
 
-训练数据和模型会保存在 `data/dpo_training/` 和 `data/dpo_models/` 目录下。
+Training data and models are saved in `data/dpo_training/` and `data/dpo_models/` directories.
 
-## 注意事项
+## Important Notes
 
-1. 首次运行会自动下载本地Qwen模型，需要较长时间
-2. DPO训练需要GPU支持，建议使用CUDA环境
-3. API模型需要配置相应的API密钥
-4. 优化过程中会生成大量日志和数据文件
+1. First run will download local Qwen models, which may take considerable time
+2. DPO training requires GPU support, CUDA environment recommended
+3. API models require appropriate API key configuration
+4. The optimization process generates extensive logs and data files
 
-## 引用
+## Validation
 
-如果您使用了本项目，请引用相关论文。
+### Validate moorl Environment
+```bash
+conda activate moorl
+python -c "from algorithm.MOO import MOO; print('✓ moorl environment OK')"
+python -c "from model.MOLLM import MOLLM; print('✓ MOLLM import OK')"
+```
 
-## 许可证
+### Validate verl Environment
+```bash
+conda activate verl
+python -c "import trl; import swanlab; print('✓ verl environment OK')"
+python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+```
 
-本项目采用 MIT 许可证。
+## System Requirements
+
+- **Python**: 3.10
+- **GPU**: Recommended (24GB+ VRAM for DPO training)
+- **Disk Space**: ~30GB (environments + models + data)
+- **RAM**: 16GB minimum, 32GB+ recommended
+
+## Citation
+
+If you use this project, please cite the relevant paper.
+
+## License
+
+This project is licensed under the MIT License.
