@@ -1,4 +1,4 @@
-# MCCE: Multi-objective Cooperative Co-Evolution with LLMs
+# MCCE: A FRAMEWORK FOR MULTI-LLM COLLABORATIVE CO-EVOLUTION
 
 MCCE is a multi-objective optimization framework powered by Large Language Models (LLMs), supporting molecular optimization, Multi-Objective Traveling Salesman Problem (MOTSP), Multi-Objective Capacitated Vehicle Routing Problem (MOCVRP), and circle packing problems.
 
