@@ -157,9 +157,8 @@ python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
 ## System Requirements
 
 - **Python**: 3.10
-- **GPU**: Recommended (24GB+ VRAM for DPO training)
-- **Disk Space**: ~30GB (environments + models + data)
-- **RAM**: 16GB minimum, 32GB+ recommended
+- **GPU**: A800 40G *8
+
 
 ## Citation
 
